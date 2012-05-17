@@ -1,0 +1,58 @@
+((("elscreen-copy-tree" .
+   [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0])
+  ("elscreen-on-emacs" .
+   [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
+  ("$data" .
+   [4 0 0 0 0])
+  ("Test" .
+   [1 0 0 0])
+  ("$test" .
+   [1 0 0 0 0])
+  ("add-to-list" .
+   [0 0 0 0 0 0 1 0 0 0 0])
+  ("backup-directory-alist" .
+   [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("cons" .
+   [1 0 0 0])
+  ("setq" .
+   [5 0 0 0])
+  ("auto-save-file-name-transforms" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("expand-file-name" .
+   [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
+  ("empty" .
+   [3 0 0 0 0])
+  ("$rescue" .
+   [2 0 0 0 0 0 0])
+  ("$myForm" .
+   [3 0 0 0 0 0 0])
+  ("titleColor" .
+   [2 0 0 0 0 0 1 0 0 0])
+  ("user-emacs-directory" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("howm" .
+   [1 0 0 0])
+  ("when" .
+   [2 0 0 0])
+  ("require" .
+   [2 0 0 0 0 0 0])
+  ("howm-mode" .
+   [1 0 0 0 0 0 0 0 0])
+  ("nil" .
+   [2 0 0])
+  ("define-key" .
+   [1 0 0 0 0 0 0 0 0 2])
+  ("global-map" .
+   [0 0 0 0 0 0 0 0 0 1])
+  ("kbd" .
+   [4 0 0])
+  ("window-system" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("elscreen" .
+   [1 0 0 0 0 0 0 0])
+  ("iconify-or-deiconify-frame" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1])
+  ("elscreen-map" .
+   [0 0 0 0 0 0 0 0 0 0 0 1])
+  ("suspend-emacs" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 1])))

@@ -1,0 +1,10 @@
+= web07～09の設定
+sudo pecl install memcache
+sudo vi /etc/php.d/memcache.ini
+extension=memcache.so
+sudo vi /etc/php.ini
+default_socket_timeout = 3
+sudo /etc/init.d/httpd restart
+
+[2012-05-16 23:07] >>> ~/.emacs.d/howm/2012/05/2012-05-16-175910.howm
+

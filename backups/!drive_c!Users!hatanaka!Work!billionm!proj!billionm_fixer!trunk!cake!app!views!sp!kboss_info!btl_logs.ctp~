@@ -1,0 +1,116 @@
+<div style="background-color:#263357;">
+<div class="hMy">蝕の魔獣戦線履歴<br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+</div>
+
+<?php if(empty($list)){ ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<span style="color:#ff4142;">×参加した蝕はありません×</span><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<?php } else { ?>
+
+<?php foreach($list as $data){ ?>
+<?php if($data["battle_st"] == 0){ ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<!--
+<span style="color:#ffcc33;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span><br />
+-->
+
+<?php if($data["entry"]){ ?>
+<?php if(!empty($data["ac"])){ ?>
+
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/select_deck/".$data["TMemberKbossBattle"]["id"]))?>&guid=ON">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top">
+<span style="color:#ffcc33;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span>
+</td></tr><tr><TD align="right"  valign="botton">
+<span style="color:#E1D6B0;">⇒</span><span style="color:<?php e(LINK_MAIN_COLOR)?>;">ﾊﾞﾄﾙ中</span></tr></td></table>
+</a>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<?php } else { ?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/select_deck/".$data["TMemberKbossBattle"]["id"]))?>&guid=ON">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top">
+<span style="color:#ffcc33;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span>
+</td></tr><tr><TD align="right"  valign="botton">
+<span style="color:#E1D6B0;">⇒</span><span style="color:<?php e(LINK_MAIN_COLOR)?>;">ﾊﾞﾄﾙ中</span></tr></td></table>
+</a>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<?php } ?>
+<?php } else { ?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/".$data["TMemberKbossBattle"]["id"]))?>&guid=ON">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top">
+<span style="color:#ffcc33;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span>
+</td></tr><tr><TD align="right"  valign="botton">
+<span style="color:#E1D6B0;">⇒</span><span style="color:<?php e(LINK_MAIN_COLOR)?>;">ﾊﾞﾄﾙ中</span></tr></td></table>
+</a>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<?php } ?>
+
+<?php } else { ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<!--
+<span style="color:#ffcc33;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見
+-->
+
+<?php } ?>
+
+<?php if($data["battle_st"] == 1){ ?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/btl_result/".$data["TMemberKbossBattle"]["id"]))?>&guid=ON">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top">
+<span style="color:#E1D6B0;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span>
+</td></tr><tr><TD align="right"  valign="botton">
+<span style="color:#E1D6B0;">⇒</span><span style="color:#6699ff;">討伐成功</span></tr></td></table>
+</a>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<?php } else if($data["battle_st"] == 2){ ?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/btl_result/".$data["TMemberKbossBattle"]["id"]))?>&guid=ON">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top">
+<span style="color:#E1D6B0;"><?php e($myForm->shortDate($data["date_start"])); ?>&nbsp;<?php if(!empty($data["title"])){e($data["title"]."&nbsp;");} ?><?php e($data["nickname"]); ?>発見</span>
+</td></tr><tr><TD align="right"  valign="botton">
+<span style="color:#E1D6B0;">⇒</span><span style="color:#ff4142;">討伐失敗</span></tr></td></table>
+</a>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<?php } ?>
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_blue.gif" alt="border" width="100%" height="1"><br />
+<?php } ?>
+<?php } ?>
+</div>
+
+
+<!--
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php // ▼ページャ▼?>
+<?php echo $this->element('sp_pager', array('page' => $page, 'next' => $next, 'url' => "/kboss_info/btl_logs", 'dispType' => 2)) ?>
+<?php // ▲ページャ▲?>
+-->
+
+<?php // ▼ページャ▼?>
+<?php echo $this->element('sp_pager', array('page' => $page, 'next' => $next, 'url' => "/kboss_info/btl_logs", 'dispType' => 1 )) ?>
+<?php // ▲ページャ▲?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+
+
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/index/"))?>&guid=ON" class="arwL">《蝕》戦線へ</a>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/mypage/index/"))?>&guid=ON" class="arwL">救世院へ</a>
+

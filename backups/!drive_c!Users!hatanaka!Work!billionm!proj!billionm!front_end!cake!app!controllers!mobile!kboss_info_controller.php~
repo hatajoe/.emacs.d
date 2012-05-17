@@ -1,0 +1,2803 @@
+<?php
+require CONTROLLERS . "user_app_controller.php";
+
+define("XML_SWF_GET_REWARD"        , FLASH_XML_PATH . "rid_ditm.xml");
+define("XML_CACHE_NAME_GET_REWARD"           , "rid_ditm");
+
+/**
+ * キングボス情報コントローラ
+ *
+ * @author hikashi
+ */
+class KbossInfoController extends UserAppController {
+
+    var $components = array("Mobile",
+                            "PeopleApi",
+                            "AvatarApi",
+                            "TextdataApi",
+                            "BlacklistApi",
+                            "NgwordApi",
+                            "ActivityApi");
+    var $name = "KbossInfo";
+    var $uses = array();
+
+
+    /**
+     * レイドボス情報画面アクション
+     */
+    function index($id = null) {
+
+        $ids = array();
+        $ids[] = $this->member["id"];
+        if($id == $this->member["id"]){
+            $mine = true;
+        } else {
+            $mine = false;
+//             // 仲間一覧
+//             $this->TFriend = ClassRegistry::init("TFriend");
+//             $friends = $this->TFriend->getFriendsList($this->member["id"]);
+//             if(!empty($friends)){
+//                 foreach($friends as $friend){
+//                     $ids[] = $friend["TFriend"]["t_member_id_to"];
+//                 }
+//             }
+        }
+
+        $this->MKbossEvent = ClassRegistry::init("MKbossEvent");
+        $eventID = $this->MKbossEvent->getEventID();
+
+        $list_entry = false;
+
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        // 自分が参加中のバトルログを取得する
+        $entryBattles = $this->TMemberKbossBattleLog->getEntryBattleData($this->member["id"]);
+        $entryBattleIds = array();
+        $entryBattleData = array();
+        if (!empty($entryBattles)) {
+            foreach ($entryBattles as $entryBattle) {
+                $battleId = $entryBattle["TMemberKbossBattleLog"]["t_member_kboss_battle_id"];
+                $entryBattleIds[] = $battleId;
+                $entryBattleData[$battleId] = $entryBattle["TMemberKbossBattleLog"];
+            }
+        }
+        $list = array();
+        if (!empty($entryBattleIds)) {
+            $list = $this->TMemberKbossBattle->getBattleDataListByIds($entryBattleIds);
+        }
+        //$list = $this->TMemberKbossBattle->getBattleDataList($ids);
+        if(!empty($list)){
+            $this->MTitle           = ClassRegistry::init("MTitle");
+            $titleList = array();
+            foreach($list as $key => $data){
+                $list[$key]["nickname"] = $this->_getNickname($data["TMemberKbossBattle"]["t_member_id"]);
+                // 討伐済
+                $battle_st = 0;
+                if($data["TMemberKbossBattle"]["hp_now"] <= 0 || $data["TMemberKbossBattle"]["hp_parts_now"] <= 0){
+                    $battle_st = 1;
+                // 逃げられた(時間切れ)
+                } else if(strtotime($data["TMemberKbossBattle"]["date_end"]) < time()){
+                    $battle_st = 2;
+                }
+                if($battle_st == 0){
+                    //$battlelog = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"],$data["TMemberKbossBattle"]["id"]);
+                    $battlelog = $entryBattleData[$data["TMemberKbossBattle"]["id"]];
+                    if(!empty($battlelog) && ($data["TMemberKbossBattle"]["t_member_id"] == $this->member["id"] || !empty($battlelog["atk_num"]))){
+                        $entry = true;
+                    } else {
+                        $entry = false;
+                    }
+                } else {
+                    $entry = false;
+                }
+                $list[$key]["battle_st"] = $battle_st;
+                //$list[$key]["date_start"] = date("H:i",strtotime($data["TMemberKbossBattle"]["date_start"]));
+                $list[$key]["date_start"] = $data["TMemberKbossBattle"]["date_start"];
+                $list[$key]["entry"] = $entry;
+                if(!$list_entry && $entry){
+                    $list_entry = true;
+                    $list[$key]["ac"] = true;
+                }
+                if(isset($titleList[$data["TMemberKbossBattle"]["t_member_id"]])){
+                    if(!empty($titleList[$data["TMemberKbossBattle"]["t_member_id"]])){
+                        $list[$key]["title"] = $titleList[$data["TMemberKbossBattle"]["t_member_id"]];
+                    }
+                } else {
+                    $titleList[$data["TMemberKbossBattle"]["t_member_id"]] = "";
+                    $myTitle = $this->TMember->getMemberTitle($data["TMemberKbossBattle"]["t_member_id"]);
+                    if(!empty($myTitle["m_title_id"])){
+                        $title = $this->MTitle->getDataById($myTitle["m_title_id"]);
+                        $list[$key]["title"] = $title["name"];
+                        $titleList[$data["TMemberKbossBattle"]["t_member_id"]] = $title["name"];
+                    }
+                }
+            }
+        }
+        if(!empty($eventID)){
+            $dayList = array("(日)","(月)","(火)","(水)","(木)","(金)","(土)");
+            $eventData = $this->MKbossEvent->getDataByID($eventID);
+            $time = strtotime($eventData["start_date"]);
+            $d = intval(date("w",$time));
+            $day = $dayList[$d];
+            $startDate = date("n/j",$time) . $day . date("H:i",$time);
+            $time = strtotime($eventData["end_date"]);
+            $d = intval(date("w",$time));
+            $day = $dayList[$d];
+            $endDate = date("n/j",$time) . $day . date("H:i",$time);
+            $this->set("startDate", $startDate);
+            $this->set("endDate", $endDate);
+        }
+        $this->set("eventID"  , $eventID);
+
+        $this->set("list", $list);
+        $this->set("mine", $mine);
+        $this->set("myId", $this->member["id"]);
+        $this->set("mid" , $id);
+        $this->set("list_entry", $list_entry);
+
+        // ビッグレイド
+        //$noGetRewardBKboss = false;
+        //$noGetRewardBKbossBattleId = 0;
+        //$nowBKboss = null;
+        //$mesBKboss = "";
+        //$this->MBigKbossEvent = ClassRegistry::init("MBigKbossEvent");
+        //$BKbossEventId = $this->MBigKbossEvent->getEventID();
+        //if(!empty($BKbossEventId)){
+        //    $this->TBigKbossBattle = ClassRegistry::init("TBigKbossBattle");
+        //    $nowBKboss = $this->TBigKbossBattle->getFirst($BKbossEventId);
+        //    if(!empty($nowBKboss) && $nowBKboss["date_start"] == EMPTY_DATETIME){
+        //        $this->MBigKboss   = ClassRegistry::init("MBigKboss");
+        //        $mBKboss = $this->MBigKboss->getDataById($nowBKboss["m_big_kboss_id"]);
+        //        if($nowBKboss["challenge"] > 3){
+        //            $appear_param = $mBKboss["appear_param3"];
+        //        } else {
+        //            $appear_param = $mBKboss["appear_param".$nowBKboss["challenge"]];
+        //        }
+        //        $count = $appear_param - $nowBKboss["counter"];
+        //        if($count < 1){
+        //            $count = 1;
+        //        }
+        //        switch($mBKboss["appear_type"]){
+        //            case KBOSS_COUNT_TYPE_MIS:
+        //                $mesBKboss = "ｸｴｽﾄをあと<br />".$count."回実行すれば出現!!";
+        //                break;
+        //            case KBOSS_COUNT_TYPE_GACHA:
+        //                $mesBKboss = "ｶﾞﾁｬであと<br />".$count."回使い魔を召喚すれば出現!!";
+        //                break;
+        //            case KBOSS_COUNT_TYPE_MIX:
+        //                $mesBKboss = "合成であと<br />".$count."回使い魔を強化すれば出現!!";
+        //                break;
+        //            case KBOSS_COUNT_TYPE_CONTACT:
+        //                $mesBKboss = "他人にあと<br />".$count."回挨拶･ｺﾒﾝﾄをすれば出現!!";
+        //                break;
+        //            case KBOSS_COUNT_TYPE_PRESENT:
+        //                $mesBKboss = "他人にあと<br />".$count."回ｷﾞﾌﾄを送れば出現!!";
+        //                break;
+        //            case KBOSS_COUNT_TYPE_TRADE:
+        //                $mesBKboss = "他人とﾄﾚｰﾄﾞをあと<br /> ".$count."回すれば出現!!";
+        //                break;
+        //        }
+        //    }
+        //    $BattleList = $this->TBigKbossBattle->getClearBattleDatas();
+        //    if(!empty($BattleList)){
+        //        $this->TMemberBigKbossBattle = ClassRegistry::init("TMemberBigKbossBattle");
+        //        foreach($BattleList as $battleData){
+        //            $noGetRewardBKbossBattle = $this->TMemberBigKbossBattle->getNoGetRewardBKbossBattle($this->member["id"],$battleData["TBigKbossBattle"]["m_big_kboss_id"],$battleData["TBigKbossBattle"]["challenge"]);
+        //            if(!empty($noGetRewardBKbossBattle)){
+        //                $noGetRewardBKboss = true;
+        //                $noGetRewardBKbossBattleId = $battleData["TBigKbossBattle"]["id"];
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
+        //$this->set("nowBKboss"                 , $nowBKboss);
+        //$this->set("mesBKboss"                 , $mesBKboss);
+        //$this->set("noGetRewardBKboss"         , $noGetRewardBKboss);
+        //$this->set("noGetRewardBKbossBattleId" , $noGetRewardBKbossBattleId);
+
+        // 未回収設定追加報酬
+        $returnIncentive = $this->TMemberKbossBattle->getReturnIncentiveData($this->member["id"]);
+        $this->set("returnIncentive"           , $returnIncentive);
+
+        // 掲示板
+        $ids = $this->TMemberKbossBattleLog->getEntryBattleId($this->member["id"]);
+        if(empty($ids)){
+            $ids = array();
+        }
+
+        $rescueList = $this->TMemberKbossBattle->getRescueBoardBattleData($this->member["id"], $ids);
+        $boardData = array();
+        if(!empty($rescueList)){
+            $this->MKboss = ClassRegistry::init("MKboss");
+            $boardData = $rescueList[0];
+            $boardData["name"] = $this->_getNickname($boardData["TMemberKbossBattle"]["t_member_id"]);
+            $boardData["MKboss"] = $this->MKboss->getDataById($boardData["TMemberKbossBattle"]["m_kboss_id"]);
+            $boardData["MKboss"]["name"] = $boardData["MKboss"]["name".$boardData["TMemberKbossBattle"]["kboss_no"]];
+            if(empty($this->MTitle)){
+                $this->MTitle = ClassRegistry::init("MTitle");
+            }
+            $myTitle = $this->TMember->getMemberTitle($boardData["TMemberKbossBattle"]["t_member_id"]);
+            if(!empty($myTitle["m_title_id"])){
+                $title = $this->MTitle->getDataById($myTitle["m_title_id"]);
+                $boardData["title"] = $title["name"];
+            }
+            if(!empty($boardData["TMemberKbossBattle"]["incentive_t_member_card_id"])){
+                $this->MCard = ClassRegistry::init("MCard");
+                $this->TMemberCard = ClassRegistry::init("TMemberCard");
+                $card = $this->TMemberCard->getRewardCard($boardData["TMemberKbossBattle"]["t_member_id"], $boardData["TMemberKbossBattle"]["incentive_t_member_card_id"]);
+                $boardData["MCard"] = $this->MCard->getDataById($card["m_card_id"]);
+            } else {
+                $boardData["MCard"] = null;
+            }
+            if(!empty($boardData["TMemberKbossBattle"]["m_treasure_id"])){
+                $this->MTreasure = ClassRegistry::init("MTreasure");
+                $boardData["MTreasure"] = $this->MTreasure->getDataById($boardData["TMemberKbossBattle"]["m_treasure_id"]);
+            } else {
+                $boardData["MTreasure"] = null;
+            }
+            $boardData["TMemberKbossBattle"]["start"] = date("H:i",strtotime($boardData["TMemberKbossBattle"]["date_start"]));
+            $boardData["TMemberKbossBattle"]["limit"] = strtotime($boardData["TMemberKbossBattle"]["date_end"]) - time();
+            $count = $this->TMemberKbossBattleLog->getMemberCount($boardData["TMemberKbossBattle"]["id"], $boardData["TMemberKbossBattle"]["t_member_id"]);
+            $boardData["TMemberKbossBattle"]["count"] = ($count >= 9) ? 0 : (9 - $count);
+        }
+        $this->set("boardData"           , $boardData);
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/index");
+        }
+    }
+
+    /**
+     * レイドボス情報画面アクション
+     */
+    function btl_logs($page = 0) {
+
+        $id = isset($this->params["url"]["mid"]) ? $this->params["url"]["mid"] : null;
+        $ids = array();
+        $ids[] = $this->member["id"];
+        if($id == $this->member["id"]){
+            $mine = true;
+        } else {
+            $mine = false;
+//             // 仲間一覧
+//             $this->TFriend = ClassRegistry::init("TFriend");
+//             $friends = $this->TFriend->getFriendsList($this->member["id"]);
+//             if(!empty($friends)){
+//                 foreach($friends as $friend){
+//                     $ids[] = $friend["TFriend"]["t_member_id_to"];
+//                 }
+//             }
+        }
+
+        $list_entry = false;
+
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+
+        //自分が参加中のバトルログ全件数取得
+//        $counts = $this->TMemberKbossBattle->getBattleDataCount($ids);
+        $counts = $this->TMemberKbossBattleLog->getEntryBattleDataCount($ids);
+        $dispNum = 10;
+        if(!empty($counts)){
+            // HIT数
+            $all = $counts;
+            // 最大ページ数
+            $maxPage = ($all<=$dispNum) ? 0 : ceil($all/$dispNum) - 1;
+            if($all <= $dispNum){
+                $page = 0;
+            } else {
+                if(intval($page) < 0){
+                    $page = 0;
+                } else if(intval($page) > $maxPage){
+                    $page = $maxPage;
+                }
+            }
+            // 自分が参加中のバトルログを取得する
+            $entryBattles = $this->TMemberKbossBattleLog->getEntryBattleData($this->member["id"], 0, ($dispNum * $page));
+            $entryBattleIds = array();
+            $entryBattleData = array();
+            if (!empty($entryBattles)) {
+                foreach ($entryBattles as $entryBattle) {
+                    $battleId = $entryBattle["TMemberKbossBattleLog"]["t_member_kboss_battle_id"];
+                    $entryBattleIds[] = $battleId;
+                    $entryBattleData[$battleId] = $entryBattle["TMemberKbossBattleLog"];
+                }
+            }
+            $list = array();
+            if(!empty($entryBattleIds)) {
+                $list = $this->TMemberKbossBattle->getBattleDataListByIds($entryBattleIds);
+            }
+//            $list = $this->TMemberKbossBattle->getBattleDataList($ids, ($dispNum * $page));
+            if(!empty($list)){
+                $this->MTitle           = ClassRegistry::init("MTitle");
+                $titleList = array();
+                foreach($list as $key => $data){
+                    $list[$key]["nickname"] = $this->_getNickname($data["TMemberKbossBattle"]["t_member_id"]);
+                    // 討伐済
+                    $battle_st = 0;
+                    if($data["TMemberKbossBattle"]["hp_now"] <= 0 || $data["TMemberKbossBattle"]["hp_parts_now"] <= 0){
+                        $battle_st = 1;
+                    // 逃げられた(時間切れ)
+                    } else if(strtotime($data["TMemberKbossBattle"]["date_end"]) < time()){
+                        $battle_st = 2;
+                    }
+                    if($battle_st == 0){
+                        //$battlelog = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"],$data["TMemberKbossBattle"]["id"]);
+                        $battlelog = $entryBattleData[$data["TMemberKbossBattle"]["id"]];
+                        if(!empty($battlelog) && ($data["TMemberKbossBattle"]["t_member_id"] == $this->member["id"] || !empty($battlelog["atk_num"]))){
+                            $entry = true;
+                        } else {
+                            $entry = false;
+                        }
+                    } else {
+                        $entry = false;
+                    }
+                    $list[$key]["battle_st"] = $battle_st;
+                    //$list[$key]["date_start"] = date("H:i",strtotime($data["TMemberKbossBattle"]["date_start"]));
+                    $list[$key]["date_start"] = $data["TMemberKbossBattle"]["date_start"];
+                    $list[$key]["entry"] = $entry;
+                    if(!$list_entry && $entry){
+                        $list_entry = true;
+                        $list[$key]["ac"] = true;
+                    }
+                    if(isset($titleList[$data["TMemberKbossBattle"]["t_member_id"]])){
+                        if(!empty($titleList[$data["TMemberKbossBattle"]["t_member_id"]])){
+                            $list[$key]["title"] = $titleList[$data["TMemberKbossBattle"]["t_member_id"]];
+                        }
+                    } else {
+                        $titleList[$data["TMemberKbossBattle"]["t_member_id"]] = "";
+                        $myTitle = $this->TMember->getMemberTitle($data["TMemberKbossBattle"]["t_member_id"]);
+                        if(!empty($myTitle["m_title_id"])){
+                            $title = $this->MTitle->getDataById($myTitle["m_title_id"]);
+                            $list[$key]["title"] = $title["name"];
+                            $titleList[$data["TMemberKbossBattle"]["t_member_id"]] = $title["name"];
+                        }
+                    }
+                }
+            }
+        } else {
+            $list = array();
+            $all   = 0;
+            $page  = 0;
+        }
+
+        //ページャー
+        $this->setPagerNext($list, $all, $page, $dispNum);
+        $this->set("mine", $mine);
+        $this->set("myId", $this->member["id"]);
+        $this->set("mid" , $id);
+        $this->set("list_entry", $list_entry);
+
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/btl_logs");
+        }
+    }
+
+    /**
+     * 未取得一覧
+     */
+    function not_receipt() {
+
+        $list = array();
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logIds = $this->TMemberKbossBattleLog->getNotReceiptIds($this->member["id"]);
+        if(!empty($logIds)){
+            $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+            $list = $this->TMemberKbossBattle->getNotReceiptBattleDataList($logIds);
+        }
+
+        $this->set("list", $list);
+        $this->set("myId", $this->member["id"]);
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/not_receipt");
+        }
+    }
+
+
+    /**
+     * レイドボス救援要請掲示板
+     */
+    function board() {
+
+
+        // 会員情報
+        $memData = $this->TMember->getMemberStatus($this->member["id"]);
+        if(empty($memData)){
+            $this->toError();
+            return;
+        }
+        if($memData["lv"] < RAID_BOARD_LV){
+            $this->redirect("/kboss_info/index");
+        }
+        $memData["gender"] = $this->member["gender"];
+
+        // ソート
+        $no = 0;
+        if(isset($this->data["s"])){
+            $no = $this->data["s"];
+        }
+        switch($no){
+            //case 1:
+            //    $sort = "m_treasure_id ASC";
+            //    break;
+            //case 2:
+            //    $sort = "m_treasure_id DESC";
+            //    break;
+            case 3:
+                $sort = "kboss_lv ASC";
+                break;
+            case 4:
+                $sort = "kboss_lv DESC";
+                break;
+            default:
+                $sort = null;
+        }
+
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $this->MKboss = ClassRegistry::init("MKboss");
+        $this->MCard = ClassRegistry::init("MCard");
+        $this->MTreasure = ClassRegistry::init("MTreasure");
+        $this->TMemberCard = ClassRegistry::init("TMemberCard");
+
+
+        $ids = $this->TMemberKbossBattleLog->getEntryBattleId($this->member["id"]);
+        if(empty($ids)){
+            $ids = array();
+        }
+
+        $rescueList = $this->TMemberKbossBattle->getRescueBoardBattleData($this->member["id"], $ids, $sort);
+
+        if(!empty($rescueList)){
+            $this->MTitle = ClassRegistry::init("MTitle");
+            foreach($rescueList as $key => $data){
+                $rescueList[$key]["name"] = $this->_getNickname($data["TMemberKbossBattle"]["t_member_id"]);
+                $rescueList[$key]["MKboss"] = $this->MKboss->getDataById($data["TMemberKbossBattle"]["m_kboss_id"]);
+                $rescueList[$key]["MKboss"]["name"] = $rescueList[$key]["MKboss"]["name".$data["TMemberKbossBattle"]["kboss_no"]];
+                $myTitle = $this->TMember->getMemberTitle($data["TMemberKbossBattle"]["t_member_id"]);
+                if(!empty($myTitle["m_title_id"])){
+                    $title = $this->MTitle->getDataById($myTitle["m_title_id"]);
+                    $rescueList[$key]["title"] = $title["name"];
+                }
+                if(!empty($data["TMemberKbossBattle"]["incentive_t_member_card_id"])){
+                    $card = $this->TMemberCard->getRewardCard($data["TMemberKbossBattle"]["t_member_id"], $data["TMemberKbossBattle"]["incentive_t_member_card_id"]);
+                    $rescueList[$key]["MCard"] = $this->MCard->getDataById($card["m_card_id"]);
+                } else {
+                    $rescueList[$key]["MCard"] = null;
+                }
+                if(!empty($data["TMemberKbossBattle"]["m_treasure_id"])){
+                    $rescueList[$key]["MTreasure"] = $this->MTreasure->getDataById($data["TMemberKbossBattle"]["m_treasure_id"]);
+                } else {
+                    $rescueList[$key]["MTreasure"] = null;
+                }
+                $rescueList[$key]["TMemberKbossBattle"]["start"] = date("H:i",strtotime($data["TMemberKbossBattle"]["date_start"]));
+                $rescueList[$key]["TMemberKbossBattle"]["limit"] = strtotime($data["TMemberKbossBattle"]["date_end"]) - time();
+                //キャッシュファイルがあるかどうかを探す。あればそのデータを格納
+                $cacheName = "kboss_battle_log_count_".$data["TMemberKbossBattle"]["id"];
+                if (($count = Cache::read($cacheName)) === false) {
+                    $count = $this->TMemberKbossBattleLog->getMemberCount($data["TMemberKbossBattle"]["id"], $data["TMemberKbossBattle"]["t_member_id"]);
+                    //キャッシュファイルへ格納
+                    Cache::write($cacheName, $count);
+                }
+                $rescueList[$key]["TMemberKbossBattle"]["count"] = ($count >= 9) ? 0 : (9 - $count);
+            }
+        }
+
+        // 過去に掲示板設定した事があるか？
+        $boardData = $this->TMemberKbossBattle->getRescueBoardCheckData($this->member["id"]);
+
+        $sortList = array(
+                           0 => "追加された順",
+                           //1 => "魔具ID昇順",
+                           //2 => "魔具ID降順",
+                           3 => "ﾎﾞｽﾚﾍﾞﾙ低い順",
+                           4 => "ﾎﾞｽﾚﾍﾞﾙ高い順"
+                         );
+
+        $this->set("list" , $rescueList);
+        $this->set("sort" , $sortList);
+
+        $this->set("memData"       , $memData);
+        $this->set("boardData"     , $boardData);
+
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/board");
+        }
+    }
+
+    /**
+     * バトル結果
+     */
+    function btl_result($id) {
+
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0){
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        $myId = $this->member["id"];
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        if($data["t_member_id"] == $this->member["id"]){
+            $mine = true;
+        } else {
+            $mine = false;
+        }
+
+        if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+            $notGet = true;
+        } else {
+            $notGet = false;
+        }
+        // 報酬受取期限
+        //if((strtotime($data["date_end"]) + 864000) < time()){
+        if((strtotime($data["modified"]) + 864000) > time()){
+            $limit = true;
+        } else {
+            $limit = false;
+        }
+
+        // 報酬返却確認
+        $return_incentive = false;
+        if($battle_st == 3 && $mine){
+            if($data["incentive_return_flg"] != 1 && strtotime($data["date_end"]) > (time() - 864000)){
+                if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+                    $return_incentive = true;
+                    if(!empty($data["incentive_pt"])){
+                        $this->set("incentive_pt", $data["incentive_pt"]);
+                    }
+                    if(!empty($data["incentive_con_pt"])){
+                        $this->set("incentive_con_pt", $data["incentive_con_pt"]);
+                    }
+                    if(!empty($data["incentive_t_member_card_id"])){
+                        $this->TMemberCard = ClassRegistry::init("TMemberCard");
+                        $incentiveCard = $this->TMemberCard->getRewardCard($data["t_member_id"], $data["incentive_t_member_card_id"]);
+                        if(!empty($incentiveCard)){
+                            $this->MCard = ClassRegistry::init("MCard");
+                            $mCard = $this->MCard->getDataById($incentiveCard["m_card_id"]);
+                            $incentiveCard["name"]      = $mCard["name"];
+                            $incentiveCard["attribute"] = $mCard["attribute"];
+                            $incentiveCard["rare"]      = $mCard["rare"];
+                            $incentiveCard["cost"]      = $mCard["cost"];
+                            if(!empty($mCard["m_skill_id"])){
+                                $this->MSkill = ClassRegistry::init("MSkill");
+                                $mSkill = $this->MSkill->getDataById($mCard["m_skill_id"]);
+                                $incentiveCard["skill_name"]        = $mSkill["name"];
+                                $incentiveCard["skill_description"] = $mSkill["description"];
+                            }
+
+                            $this->set("incentive_card", $incentiveCard);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // ボスデータ
+        $this->MKboss = ClassRegistry::init("MKboss");
+        $mKboss = $this->MKboss->getDataById($data["m_kboss_id"]);
+        $mKboss["name"] = $mKboss["name".$data["kboss_no"]];
+
+        if($battle_st != 3){
+            // 参加者データ
+            //$mvpId = 0;
+            //$mvpPt = 0;
+            //$mvpAt = 0;
+            $sortPt = array();
+            $sortAt = array();
+            $sortId = array();
+            $avatarids = array();
+            $memberList = $this->TMemberKbossBattleLog->getBattleMember($id);
+            $contributionList = $memberList;
+            $this->MTitle = ClassRegistry::init("MTitle");
+            foreach($memberList as $key => $member){
+                $memberList[$key]["name"] = $this->_getNickname($member["TMemberKbossBattleLog"]["t_member_id"]);
+                //$memberList[$key]["avatarUrl"] = $this->_getAvatarUrl($member["TMemberKbossBattleLog"]["t_member_id"]);
+                $memberList[$key]["member"] = $this->TMember->getMemberBtl($member["TMemberKbossBattleLog"]["t_member_id"]);
+                if(!empty($memberList[$key]["member"]["m_title_id"])){
+                    $title = $this->MTitle->getDataById($memberList[$key]["member"]["m_title_id"]);
+                    $memberList[$key]["title"] = $title["name"];
+                }
+                $avatarids[] = $member["TMemberKbossBattleLog"]["t_member_id"];
+
+                // 獲得称号があるかチェックしてあるならデータを取得
+                if($member["TMemberKbossBattleLog"]["t_member_id"] == $this->member["id"]){
+                    if(!empty($member["TMemberKbossBattleLog"]["m_title_id"])){
+                        $title = $this->MTitle->getDataById($member["TMemberKbossBattleLog"]["m_title_id"]);
+                        $this->MTitleCondition = ClassRegistry::init("MTitleCondition");
+                        $mTitleCondition = $this->MTitleCondition->getTitleConditonByTitleId($title["id"]);
+                        $titleReward = array();
+                        for($i=1;$i<=6;$i++){
+                            if(!empty($mTitleCondition["reward_id".$i])){
+                                switch($mTitleCondition["reward_type".$i]){
+                                    case PRE_TYPE_CARD:
+                                        if(empty($this->MCard)){
+                                            $this->MCard = ClassRegistry::init("MCard");
+                                        }
+                                        $card = $this->MCard->getDataById($mTitleCondition["reward_id".$i]);
+                                        $titleReward[] = $card["name"]."×".$mTitleCondition["reward_num".$i]."体獲得しました。";
+                                        break;
+                                    case PRE_TYPE_ITEM:
+                                        if(empty($this->MItem)){
+                                            $this->MItem = ClassRegistry::init("MItem");
+                                        }
+                                        $item = $this->MItem->getDataById($mTitleCondition["reward_id".$i]);
+                                        if($item["type"] == ITEM_TYPE_GACHA_TICKET){
+                                            $titleReward[] = $item["name"]."×".$mTitleCondition["reward_num".$i]."枚獲得しました。";
+                                        } else {
+                                            $titleReward[] = $item["name"]."×".$mTitleCondition["reward_num".$i]."個獲得しました。";
+                                        }
+                                        break;
+                                    case PRE_TYPE_TRE:
+                                        if(empty($this->MTreasure)){
+                                            $this->MTreasure = ClassRegistry::init("MTreasure");
+                                        }
+                                        $tre = $this->MTreasure->getDataById($mTitleCondition["reward_id".$i]);
+                                        $titleReward[] = $tre["name"]."×".$mTitleCondition["reward_num".$i]."個獲得しました。";
+                                        break;
+                                    case PRE_TYPE_POINT:
+                                        $titleReward[] = $mTitleCondition["reward_id".$i]."θ獲得しました。";
+                                        break;
+                                    case PRE_TYPE_CON_POINT:
+                                        $titleReward[] = $mTitleCondition["reward_id".$i]."絆pt獲得しました。";
+                                        break;
+                                }
+                            }
+                        }
+                        $this->set("getTitle"    , $title);
+                        $this->set("titleReward" , $titleReward);
+                    }
+                }
+
+                $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                //if($pt > $mvpPt){
+                //    $mvpId = $member["TMemberKbossBattleLog"]["id"];
+                //    $mvpPt = $pt;
+                //    $mvpAt = $member["TMemberKbossBattleLog"]["atk_num"];
+                //} else if($pt == $mvpPt){
+                //    if($member["TMemberKbossBattleLog"]["atk_num"] > $mvpAt){
+                //        $mvpId = $member["TMemberKbossBattleLog"]["id"];
+                //        $mvpPt = $pt;
+                //        $mvpAt = $member["TMemberKbossBattleLog"]["atk_num"];
+                //    } else if($member["TMemberKbossBattleLog"]["atk_num"] == $mvpAt){
+                //        if($mvpId > $member["TMemberKbossBattleLog"]["id"]){
+                //            $mvpId = $member["TMemberKbossBattleLog"]["id"];
+                //            $mvpPt = $pt;
+                //            $mvpAt = $member["TMemberKbossBattleLog"]["atk_num"];
+                //        }
+                //    }
+                //}
+                $sortPt[$key] = $pt;
+                $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+            }
+            array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+            $mvpId = $contributionList[0]["TMemberKbossBattleLog"]["t_member_id"];
+            $this->set("memberList", $memberList);
+            $this->set("mvpId"     , $mvpId);
+
+            $avatarList = $this->_getAvatars($avatarids);
+            $this->set("avatarList"    , $avatarList);
+
+            if(empty($logData["reward_all"])){
+                // ロック
+                try{
+                    $this->TMemberKbossBattleLog->begin();
+                    $logData = $this->TMemberKbossBattleLog->getDataByULock($logData["id"]);
+                    $contribution = 0;
+                    if(empty($logData["reward_all"])){
+                        $rewardData = array();
+                        $rewardList = array();
+                        // 発見者の場合
+                        if($data["t_member_id"] == $this->member["id"]){
+                            $getReward = true;
+                            // 抽選回数分
+                            for($i=$mKboss["discoverer_lot"];$i>0;$i--){
+                                $r = mt_rand(0,9999);
+                                // チケット
+                                $rate = $mKboss["rate_ticket"];
+                                if($r < $rate){
+                                    $r = mt_rand(0,99);
+                                    if($r < $mKboss["rate_ticket_s"]){
+                                        $item = array("type" => PRE_TYPE_ITEM, "id" => ITEM_ID_TICKET_S);
+                                    } else {
+                                        $item = array("type" => PRE_TYPE_ITEM, "id" => ITEM_ID_TICKET_U);
+                                    }
+                                    if(empty($this->MItem)){
+                                        $this->MItem = ClassRegistry::init("MItem");
+                                    }
+                                    $mItem = $this->MItem->getDataById($item["id"]);
+                                    $item["MItem"] = $mItem;
+                                } else {
+                                    // 資金
+                                    $rate += $mKboss["rate_pt"];
+                                    if($r < $rate){
+                                        $item = array("type" => PRE_TYPE_POINT, "id" => $mKboss["pt"]);
+                                    // 絆pt
+                                    } else {
+                                        $item = array("type" => PRE_TYPE_CON_POINT, "id" => $mKboss["contact_pt"]);
+                                    }
+                                }
+                                $rewardList[] = $item;
+                            }
+                            //// １度でも戦っていたら貢献度報酬獲得
+                            //if($logData["atk_num"] > 0 && empty($data["m_treasure_id"])){
+                            $contribution = (($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100;
+                            // 10%以上で貢献度報酬
+                            if($contribution >= 10 && !empty($data["m_treasure_id"])){
+                                if(empty($this->MTreasure)){
+                                    $this->MTreasure = ClassRegistry::init("MTreasure");
+                                }
+                                $mTreasure = $this->MTreasure->getDataById($data["m_treasure_id"]);
+                                $rewardData["MTreasure"] = $mTreasure;
+                                // 該当シリーズを持っているか
+                                $this->TMemberSeries = ClassRegistry::init("TMemberSeries");
+                                $series = $this->TMemberSeries->getMemberSeriesBySeriesId($this->member["id"],$mTreasure["m_series_id"]);
+                                if(empty($series)){
+                                    $rewardData["getTreasure"] = false;
+                                } else {
+                                    $rewardData["getTreasure"] = true;
+                                }
+                            }
+                            // アクティビティ
+                            if(!empty($mKboss["rare"])){
+                                $nickname = $this->_getNickname($this->member["id"]);
+                                $title = $nickname."さんが暴蝕の魔獣に勝利!!";
+                                $this->ActivityApi->sendActivity($title);
+                            }
+                        } else {
+                            $getReward = false;
+                            // 貢献度５％以上で討伐報酬
+                            $contribution = (($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100;
+                            if($contribution >= 5){
+                                $getReward = true;
+                                $r = mt_rand(0,9999);
+                                // チケット
+                                $rate = $mKboss["rate_ticket"];
+                                if($r < $rate){
+                                    $r = mt_rand(0,99);
+                                    if($r < $mKboss["rate_ticket_s"]){
+                                        $item = array("type" => PRE_TYPE_ITEM, "id" => ITEM_ID_TICKET_S);
+                                    } else {
+                                        $item = array("type" => PRE_TYPE_ITEM, "id" => ITEM_ID_TICKET_U);
+                                    }
+                                    if(empty($this->MItem)){
+                                        $this->MItem = ClassRegistry::init("MItem");
+                                    }
+                                    $mItem = $this->MItem->getDataById($item["id"]);
+                                    $item["MItem"] = $mItem;
+                                } else {
+                                    // 資金
+                                    $rate += $mKboss["rate_pt"];
+                                    if($r < $rate){
+                                        $item = array("type" => PRE_TYPE_POINT, "id" => $mKboss["pt"]);
+                                    // 絆pt
+                                    } else {
+                                        $item = array("type" => PRE_TYPE_CON_POINT, "id" => $mKboss["contact_pt"]);
+                                    }
+                                }
+                                $rewardList[] = $item;
+                                // 10%以上で貢献度報酬
+                                if($contribution >= 10 && !empty($data["m_treasure_id"])){
+                                    // 貢献度報酬は仲間のみ
+                                    //$this->TFriend = ClassRegistry::init("TFriend");
+                                    //if($this->TFriend->isFriend($this->member["id"],$data["t_member_id"])){
+                                        if(empty($this->MTreasure)){
+                                            $this->MTreasure = ClassRegistry::init("MTreasure");
+                                        }
+                                        $mTreasure = $this->MTreasure->getDataById($data["m_treasure_id"]);
+                                        $rewardData["MTreasure"] = $mTreasure;
+                                        // 該当シリーズを持っているか
+                                        $this->TMemberSeries = ClassRegistry::init("TMemberSeries");
+                                        $series = $this->TMemberSeries->getMemberSeriesBySeriesId($this->member["id"],$mTreasure["m_series_id"]);
+                                        if(empty($series)){
+                                            $rewardData["getTreasure"] = false;
+                                        } else {
+                                            $rewardData["getTreasure"] = true;
+                                        }
+                                    //}
+                                }
+                            }
+                        }
+                        $rewardData["reward"]       = $rewardList;
+                        $rewardData["getReward"]    = $getReward;
+                        $rewardData["contribution"] = $contribution;
+                        $this->TMemberKbossBattleLog->setRewardAll($this->member["id"], $logData["id"], $rewardData);
+
+
+                        if(!empty($rewardData["getReward"]) && $limit){
+                            // 報酬追加
+                            $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+
+                            foreach($rewardData["reward"] as $reward){
+                                switch($reward["type"]){
+                                    case PRE_TYPE_ITEM:
+                                        $preData = array();
+                                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                                        $preData["state"]              = FLG_OFF;
+                                        $preData["t_member_id_from"]   = 0;
+                                        $preData["t_member_id_to"]     = $this->member["id"];
+                                        $preData["item_type"]          = PRE_TYPE_ITEM;
+                                        $preData["item_id"]            = $reward["id"];
+                                        $preData["item_num"]           = 1;
+                                        if($mKboss["rare"] == 1){
+                                            $preData["text_id"]           = 1;
+                                        }
+                                        break;
+                                    case PRE_TYPE_POINT:
+                                        $preData = array();
+                                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                                        $preData["state"]              = FLG_OFF;
+                                        $preData["t_member_id_from"]   = 0;
+                                        $preData["t_member_id_to"]     = $this->member["id"];
+                                        $preData["item_type"]          = PRE_TYPE_POINT;
+                                        $preData["item_id"]            = $reward["id"];
+                                        $preData["item_num"]           = 0;
+                                        if($mKboss["rare"] == 1){
+                                            $preData["text_id"]           = 1;
+                                        }
+                                        break;
+                                    case PRE_TYPE_CON_POINT:
+                                        $preData = array();
+                                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                                        $preData["state"]              = FLG_OFF;
+                                        $preData["t_member_id_from"]   = 0;
+                                        $preData["t_member_id_to"]     = $this->member["id"];
+                                        $preData["item_type"]          = PRE_TYPE_CON_POINT;
+                                        $preData["item_id"]            = $reward["id"];
+                                        $preData["item_num"]           = 0;
+                                        if($mKboss["rare"] == 1){
+                                            $preData["text_id"]           = 1;
+                                        }
+                                        break;
+                                }
+                                $this->TMemberPresent->insertPresent($preData);
+                            }
+                            if(!empty($rewardData["getTreasure"])){
+                                $preData = array();
+                                $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                                $preData["state"]              = FLG_OFF;
+                                $preData["t_member_id_from"]   = 0;
+                                $preData["t_member_id_to"]     = $this->member["id"];
+                                $preData["item_type"]          = PRE_TYPE_TRE;
+                                $preData["item_id"]            = $data["m_treasure_id"];
+                                $preData["item_num"]           = 1;
+                                if($mKboss["rare"] == 1){
+                                    $preData["text_id"]           = 1;
+                                }
+                                $this->TMemberPresent->insertPresent($preData);
+                            }
+                        }
+
+                        $this->TMemberKbossBattleLog->updateReward($logData["id"], 2, 1);
+                    } else {
+                        $reward_all = base64_decode($logData["reward_all"]);
+                        $rewardData = unserialize($reward_all);
+                    }
+                    $this->TMemberKbossBattle->commit();
+                } catch (Exception $e) {
+                    $this->TMemberKbossBattle->rollback();
+                    $this->toError();
+                    return;
+                }
+            } else {
+                $reward_all = base64_decode($logData["reward_all"]);
+                $rewardData = unserialize($reward_all);
+            }
+
+            if(!empty($rewardData["getTreasure"]) && empty($logData["view_flg"])){
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    $this->redirect("/kboss_info/get_treasure_sp/".$id);
+                } else {
+                    $this->redirect("/kboss_info/get_treasure/".$id);
+                }
+            }
+
+            $this->set("rewardData" , $rewardData);
+//            // 追加報酬
+//            $plus = false;
+//            $treget = false;
+//            if(!$notGet){
+//                $contribution = floor((($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+//                if($contribution >= 10){
+//                    if($mKboss["lv"] <= 10){
+//                        $num = 2;
+//                    } else if($mKboss["lv"] <= 25){
+//                        $num = 3;
+//                    } else if($mKboss["lv"] <= 50){
+//                        $num = 4;
+//                    } else {
+//                        $num = 5;
+//                    }
+//                    if($battle_st == 1){
+//                        $num *= 4;
+//                    }
+//                    $piority = 0;
+//                    $cnt = 0;
+//                    for($i=0;$i<$num;$i++){
+//                        if(empty($contributionList[$i])){
+//                            $cnt = $i;
+//                            break;
+//                        }
+//                        if($contributionList[$i]["TMemberKbossBattleLog"]["id"] == $logData["id"]){
+//                            $piority = $i+1;
+//                            $treget = true;
+//                            $plus = true;
+//                            //break;
+//                        }
+//                        $c = floor((($contributionList[$i]["TMemberKbossBattleLog"]["damage"] + ($contributionList[$i]["TMemberKbossBattleLog"]["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+//                        if($c < 10){
+//                            $cnt = $i;
+//                            break;
+//                        } else if($i == ($num - 1)) {
+//                            $cnt = $num;
+//                        }
+//                    }
+//                    // 貰える位置にいるか
+//                    if($piority != 0){
+//                        $getNum = 0;
+//                        if($cnt < $num){
+//                            if($piority == 1){
+//                                $getNum = ($num - $cnt) + 1;
+//                            } else {
+//                                $getNum = 1;
+//                            }
+//                        } else {
+//                            $getNum = 1;
+//                        }
+//                    }
+//                }
+//                if(empty($data["m_treasure_id"])){
+//                    $treget = false;
+//                    $plus = false;
+//                }
+//                if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+//                    $checkData = $contributionList[0]["TMemberKbossBattleLog"];
+//                    if($checkData["id"] == $logData["id"]){
+//                        $plus = true;
+//                    }
+//                }
+//            }
+//            // チケットデータ
+//            if($logData["reward"] != 0 && (!$plus || $logData["reward_plus"] == 0)){
+//                if(!empty($logData["reward_item_id"])){
+//                    $this->MItem = ClassRegistry::init("MItem");
+//                    $mItem = $this->MItem->getDataById($logData["reward_item_id"]);
+//                    if($battle_st == 1){
+//                        $mItem["num"] = 4;
+//                    } else {
+//                        $mItem["num"] = 1;
+//                    }
+//                    $this->set("mItem"     , $mItem);
+//                }
+//            }
+//            // 追加報酬
+//            if($plus && $logData["reward"] == 2 && $logData["reward_plus"] == 1){
+//                // 魔具
+//                if($treget && !empty($data["m_treasure_id"])){
+//                    $this->MTreasure = ClassRegistry::init("MTreasure");
+//                    $mTreasure = $this->MTreasure->getDataById($data["m_treasure_id"]);
+//                    $mTreasure["num"] = $getNum;
+//                    $this->set("mTreasure"     , $mTreasure);
+//                }
+//                // 掲示板
+//                if($contributionList[0]["TMemberKbossBattleLog"]["id"] == $logData["id"]){
+//                    if(!empty($data["incentive_pt"])){
+//                        $this->set("incentive_pt"     , $data["incentive_pt"]);
+//                    }
+//                    if(!empty($data["incentive_con_pt"])){
+//                        $this->set("incentive_con_pt"     , $data["incentive_con_pt"]);
+//                    }
+//                    if(!empty($data["incentive_t_member_card_id"])){
+//                        $this->TMemberCard = ClassRegistry::init("TMemberCard");
+//                        $card = $this->TMemberCard->getDelCard($data["t_member_id"], $data["incentive_t_member_card_id"]);
+//                        if(!empty($card)){
+//                            $this->MCard = ClassRegistry::init("MCard");
+//                            $mCard = $this->MCard->getDataById($card["m_card_id"]);
+//                            if(!empty($mCard["m_skill_id"])){
+//                                $this->MSkill = ClassRegistry::init("MSkill");
+//                                $mSkill = $this->MSkill->getDataById($mCard["m_skill_id"]);
+//                                $mCard["MSkill"] = $mSkill;
+//                            }
+//                            $this->set("mCard", $mCard);
+//                        }
+//                    }
+//                }
+//
+//            }
+//            $this->set("plus"    , $plus);
+        } else {
+            // 参加者データ
+            $sortPt = array();
+            $sortAt = array();
+            $sortId = array();
+            $avatarids= array();
+            $memberList = $this->TMemberKbossBattleLog->getBattleMember($id);
+            $contributionList = $memberList;
+            $this->MTitle = ClassRegistry::init("MTitle");
+            foreach($memberList as $key => $member){
+                $memberList[$key]["name"] = $this->_getNickname($member["TMemberKbossBattleLog"]["t_member_id"]);
+                //$memberList[$key]["avatarUrl"] = $this->_getAvatarUrl($member["TMemberKbossBattleLog"]["t_member_id"]);
+                $memberList[$key]["member"] = $this->TMember->getMemberBtl($member["TMemberKbossBattleLog"]["t_member_id"]);
+                if(!empty($memberList[$key]["member"]["m_title_id"])){
+                    $title = $this->MTitle->getDataById($memberList[$key]["member"]["m_title_id"]);
+                    $memberList[$key]["title"] = $title["name"];
+                }
+                $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                $sortPt[$key] = $pt;
+                $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                $avatarids[] = $member["TMemberKbossBattleLog"]["t_member_id"];
+            }
+            array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+            $mvpId = $contributionList[0]["TMemberKbossBattleLog"]["t_member_id"];
+            $this->set("memberList", $memberList);
+            $this->set("mvpId"     , $mvpId);
+
+            $avatarList = $this->_getAvatars($avatarids);
+            $this->set("avatarList"    , $avatarList);
+        }
+
+        // 現在開催中のレイドボスイベント
+        $this->MKbossEvent = ClassRegistry::init("MKbossEvent");
+        $eventId = $this->MKbossEvent->getEventID();
+
+        $this->set("kbossBattleId"    , $id);
+        $this->set("BattleData"       , $data);
+        $this->set("battle_st"        , $battle_st);
+        $this->set("logData"          , $logData);
+        $this->set("mKboss"           , $mKboss);
+        $this->set("mine"             , $mine);
+        $this->set("limit"            , $limit);
+        $this->set("notGet"           , $notGet);
+        $this->set("return_incentive" , $return_incentive);
+        $this->set("eventId" , $eventId);
+        //$this->set("member"           , array("gender" => $this->member["gender"]));
+
+        $rvp = isset($this->params["url"]["rvp"]) ? $this->params["url"]["rvp"] : 0;
+        if($rvp != 0 && $rvp != 1 && $rvp != 10 && $rvp != 11){
+            $rvp = 0;
+        }
+        $this->set("rvp" , $rvp);
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/btl_result");
+        }
+
+    }
+    /**
+     * バトル報酬
+     */
+    function return_reward($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+
+        if($battle_st != 3){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+        if($data["t_member_id"] != $this->member["id"]){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬回収期限切れ
+        if((strtotime($data["date_end"]) + 864000) < time()){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 回収確認
+        if($btlData["incentive_return_flg"] != 0){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // ロック
+        try{
+            $this->TMemberKbossBattle->begin();
+
+            $btlData = $this->TMemberKbossBattle->getDataByULock($id);
+            if(empty($btlData)){
+                $this->toError();
+                return;
+            }
+
+            // 報酬受け取り確認
+            if($btlData["incentive_return_flg"] != 0){
+                // 回収済
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+            if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+                // 報酬追加
+                if(!empty($data["incentive_pt"])){
+                    $preData = array();
+                    $preData["type"]               = PRESENT_TYPE_RETURN_REWARD;
+                    $preData["state"]              = FLG_OFF;
+                    $preData["t_member_id_from"]   = 0;
+                    $preData["t_member_id_to"]     = $this->member["id"];
+                    $preData["item_type"]          = PRE_TYPE_POINT;
+                    $preData["item_id"]            = $data["incentive_pt"];
+                    $preData["item_num"]           = 0;
+                    $this->TMemberPresent->insertPresent($preData);
+                }
+                if(!empty($data["incentive_con_pt"])){
+                    $preData = array();
+                    $preData["type"]               = PRESENT_TYPE_RETURN_REWARD;
+                    $preData["state"]              = FLG_OFF;
+                    $preData["t_member_id_from"]   = 0;
+                    $preData["t_member_id_to"]     = $this->member["id"];
+                    $preData["item_type"]          = PRE_TYPE_CON_POINT;
+                    $preData["item_id"]            = $data["incentive_con_pt"];
+                    $preData["item_num"]           = 0;
+                    $this->TMemberPresent->insertPresent($preData);
+                }
+                if(!empty($data["incentive_t_member_card_id"])){
+                    $this->TMemberCard = ClassRegistry::init("TMemberCard");
+                    $card = $this->TMemberCard->getRewardCard($data["t_member_id"], $data["incentive_t_member_card_id"]);
+                    if(!empty($card)){
+                        //$this->TMemberCard->deleteCard($data["t_member_id"], $data["incentive_t_member_card_id"],FLG_REWARD);
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_RETURN_REWARD;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_CARD;
+                        $preData["item_id"]            = $card["id"];
+                        $preData["item_num"]           = 0;
+                        $this->TMemberPresent->insertPresent($preData);
+                    }
+                }
+            }
+            $this->TMemberKbossBattle->updateReturnFlg($id);
+
+            $this->TMemberKbossBattle->commit();
+        } catch (Exception $e) {
+            $this->TMemberKbossBattle->rollback();
+            $this->toError();
+            return;
+        }
+        $this->redirect("/kboss_info/btl_result/".$id);
+
+    }
+
+    /**
+     * 魔具Flash
+     */
+    function get_treasure_sp($id) {
+
+        if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+            // IDが指定されていない場合
+            if(empty($id)){
+                $this->toError();
+                return;
+            }
+            $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+            $data = $this->TMemberKbossBattle->getBattleData($id);
+
+            // バトルデータが存在しない
+            if(empty($data)){
+                $this->toError();
+                return;
+            }
+            $battle_st = 0;
+            // 部位破壊
+            if($data["hp_parts_now"] <= 0){
+                $battle_st = 1;
+            // 通常討伐
+            } else if($data["hp_now"] <= 0){
+                $battle_st = 2;
+            // 逃げられた(時間切れ)
+            } else if(strtotime($data["date_end"]) < time()){
+                $battle_st = 3;
+            }
+            // まだバトル中
+            if($battle_st == 0 || $battle_st == 3){
+                $this->redirect("/kboss/top/".$id);
+            }
+
+            // 参加チェック
+            $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+            $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+            if(empty($logData)){
+                $this->redirect("/kboss/top/".$id);
+            }
+            if(empty($logData["reward_all"])){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            $reward_all = base64_decode($logData["reward_all"]);
+            $rewardData = unserialize($reward_all);
+            if(empty($rewardData["getTreasure"])){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            if((strtotime($data["modified"]) + 864000) < time()){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            $this->readSPSwf(SITE_URL."/kboss_info/get_treasure/".$id);
+
+        } else {
+            $this->redirect("/kboss_info/get_treasure/".$id);
+        }
+    }
+
+    /**
+     * 魔具Flash
+     */
+    function get_treasure($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0 || $battle_st == 3){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        if(empty($logData["reward_all"])){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+
+        $reward_all = base64_decode($logData["reward_all"]);
+        $rewardData = unserialize($reward_all);
+        if(empty($rewardData["getTreasure"])){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        if((strtotime($data["modified"]) + 864000) < time()){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        //画像変換
+        App::import('Component', 'ImgUtil');
+        $iuc = new ImgUtilComponent($this);
+        config("defines/swf_key_defines");
+
+        // 付与アイテム
+        $this->MTreasure = ClassRegistry::init("MTreasure");
+        $mItem = $this->MTreasure->getDataById($data["m_treasure_id"]);
+        $message = $mItem["name"]."を1個獲得した!";
+
+        $treasureImageData = $iuc->getImageDBL($iuc->getRewardTreasureImageFilePath($mItem["m_series_id"], $mItem["sort"], SIZETYPE_M),   $iuc->getRewardTreasureImageFilePath($mItem["m_series_id"], $mItem["sort"], SIZETYPE_M, true));
+
+        $flashParams["ITEM_IMAGE"]     = $treasureImageData["data"];
+        $flashParams["ITEM_COLORMAP"]  = $treasureImageData["colormap"];
+
+        $url = SITE_URL . "/kboss_info/btl_result/".$id;
+        $url = urlencode($url ."?guid=ON");
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $url  = APPLI_URL_SP . "/?url=" . $url;
+        } else {
+            $url  = APPLI_URL . "/?url=" . $url;
+        }
+
+        //Added by nagata@shlab.jp
+        // 表示状態更新
+        $this->TMemberKbossBattleLog->updateViewFlg($logData["id"]);
+        $this->disconnectDB();
+        //End. nagata@shlab.jp
+        //フラッシュ出力
+        $file = XML_SWF_GET_REWARD;
+        $cacheName = XML_CACHE_NAME_GET_REWARD;
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $file = str_replace(FLASH_XML_PATH, FLASH_XML_PATH_SP,$file);
+            $cacheName .= "_sp";
+        }
+        App::import('Component', 'SwfUtil');
+        $suc = new SwfUtilComponent($this);
+        $suc->initCache($file, $cacheName);
+        $suc->set(KEY_RESULT_URL                , $url);
+        $suc->set(KEY_MESSAGE                   , $message);
+        if (!empty($flashParams)) {
+            foreach ($flashParams as $key => $value) {
+                $suc->set($key, $value);
+            }
+        }
+
+        //Deleted by nagata@shlab.jp→DB切断処理の前に移動
+//         // 表示状態更新
+//         $this->TMemberKbossBattleLog->updateViewFlg($logData["id"]);
+        //End. nagata@shlab.jp
+        
+        $suc->outputSwf();
+    }
+
+    /**
+     * バトル報酬
+     */
+/*
+    function get_reward($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0 || $battle_st == 3){
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        $myId = $this->member["id"];
+
+        if($data["t_member_id"] == $this->member["id"]){
+            $mine = true;
+        } else {
+            $mine = false;
+        }
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        //if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+        if(empty($logData["reward_all"])){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+
+        $reward_all = base64_decode($logData["reward_all"]);
+        $rewardData = unserialize($reward_all);
+        if(empty($rewardData["getReward"])){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬受取期限切れ
+        //if((strtotime($data["date_end"]) + 864000) < time()){
+        if((strtotime($data["modified"]) + 864000) < time()){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // ボスデータ
+        $this->MKboss = ClassRegistry::init("MKboss");
+        $mKboss = $this->MKboss->getDataById($data["m_kboss_id"]);
+        if(empty($mKboss)){
+            $this->toError();
+            return;
+        }
+
+        // ロック
+        try{
+            $this->TMemberKbossBattleLog->begin();
+
+            $logData = $this->TMemberKbossBattleLog->getDataByULock($logData["id"]);
+            if(empty($logData)){
+                $this->toError();
+                return;
+            }
+
+            // 報酬受け取り確認
+            if($logData["reward"] > 1){
+                // すでに受け取っている
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+
+            // 報酬追加
+            $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+
+            foreach($rewardData["reward"] as $reward){
+                switch($reward["type"]){
+                    case PRE_TYPE_ITEM:
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_ITEM;
+                        $preData["item_id"]            = $reward["id"];
+                        $preData["item_num"]           = 1;
+                        if($mKboss["rare"] == 1){
+                            $preData["text_id"]           = 1;
+                        }
+                        break;
+                    case PRE_TYPE_POINT:
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_POINT;
+                        $preData["item_id"]            = $reward["id"];
+                        $preData["item_num"]           = 0;
+                        if($mKboss["rare"] == 1){
+                            $preData["text_id"]           = 1;
+                        }
+                        break;
+                    case PRE_TYPE_CON_POINT:
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_CON_POINT;
+                        $preData["item_id"]            = $reward["id"];
+                        $preData["item_num"]           = 0;
+                        if($mKboss["rare"] == 1){
+                            $preData["text_id"]           = 1;
+                        }
+                        break;
+                }
+                $this->TMemberPresent->insertPresent($preData);
+            }
+            if(!empty($rewardData["getTreasure"])){
+                $preData = array();
+                $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                $preData["state"]              = FLG_OFF;
+                $preData["t_member_id_from"]   = 0;
+                $preData["t_member_id_to"]     = $this->member["id"];
+                $preData["item_type"]          = PRE_TYPE_TRE;
+                $preData["item_id"]            = $data["m_treasure_id"];
+                $preData["item_num"]           = 1;
+                if($mKboss["rare"] == 1){
+                    $preData["text_id"]           = 1;
+                }
+                $this->TMemberPresent->insertPresent($preData);
+            }
+
+            $this->TMemberKbossBattleLog->updateReward($logData["id"], 2, 1);
+
+            $this->TMemberKbossBattleLog->commit();
+        } catch (Exception $e) {
+            $this->TMemberKbossBattleLog->rollback();
+            $this->toError();
+            return;
+        }
+
+        $this->redirect("/present/inbox/");
+    }
+*/
+    /**
+     * バトル報酬
+     */
+/*
+    function get_reward_sp($id) {
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+            // IDが指定されていない場合
+            if(empty($id)){
+                $this->toError();
+                return;
+            }
+            $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+            $data = $this->TMemberKbossBattle->getBattleData($id);
+
+            // バトルデータが存在しない
+            if(empty($data)){
+                $this->toError();
+                return;
+            }
+            $battle_st = 0;
+            // 部位破壊
+            if($data["hp_parts_now"] <= 0){
+                $battle_st = 1;
+            // 通常討伐
+            } else if($data["hp_now"] <= 0){
+                $battle_st = 2;
+            // 逃げられた(時間切れ)
+            } else if(strtotime($data["date_end"]) < time()){
+                $battle_st = 3;
+            }
+            // まだバトル中
+            if($battle_st == 0 || $battle_st == 3){
+                $this->redirect("/kboss/top/".$id);
+            }
+
+            $myId = $this->member["id"];
+
+            if($data["t_member_id"] == $this->member["id"]){
+                $mine = true;
+            } else {
+                $mine = false;
+            }
+
+            // 参加チェック
+            $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+            $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+            if(empty($logData)){
+                $this->redirect("/kboss/top/".$id);
+            }
+
+            if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+
+            // 報酬受取期限切れ
+            //if((strtotime($data["date_end"]) + 864000) < time()){
+            if((strtotime($data["modified"]) + 864000) < time()){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+            // 報酬受け取り確認
+            if($logData["reward"] > 1 || (!$mine && $logData["reward"] > 0)){
+                // すでに受け取っている
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+            $this->readSPSwf(SITE_URL."/kboss_info/get_reward/".$id);
+        } else {
+            $this->redirect("/kboss_info/get_reward/".$id);
+        }
+    }
+*/
+    /**
+     * バトル報酬
+     */
+/*
+    function get_reward($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0 || $battle_st == 3){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        $myId = $this->member["id"];
+
+        if($data["t_member_id"] == $this->member["id"]){
+            $mine = true;
+        } else {
+            $mine = false;
+        }
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬受取期限切れ
+        //if((strtotime($data["date_end"]) + 864000) < time()){
+        if((strtotime($data["modified"]) + 864000) < time()){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // ロック
+        try{
+            $this->TMemberKbossBattleLog->begin();
+
+            $logData = $this->TMemberKbossBattleLog->getDataByULock($logData["id"]);
+            if(empty($logData)){
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->toError();
+                return;
+            }
+
+            // 報酬受け取り確認
+            if($logData["reward"] > 1 || (!$mine && $logData["reward"] > 0)){
+                // すでに受け取っている
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            // ボスデータ
+            $this->MKboss = ClassRegistry::init("MKboss");
+            $mKboss = $this->MKboss->getDataById($data["m_kboss_id"]);
+            if(empty($mKboss)){
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->toError();
+                return;
+            }
+
+            // 討伐報酬
+            $getPoint = $mKboss["point"];
+            $getConPoint = $mKboss["contact_point"];
+            // 部位破壊の場合は4倍
+            if($battle_st == 1){
+                $getPoint *= 4;
+                $getConPoint *= 4;
+            }
+
+            // 受取状態更新
+            if(!$mine){
+               $st = 2;
+            } else {
+               $st = $logData["reward"] + 1;
+            }
+
+            // 追加報酬の受取権利があるか
+            $plus_st = 2;
+            $contribution = floor((($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+            if($contribution >= 10){
+                if($mKboss["lv"] <= 10){
+                    $num = 2;
+                } else if($mKboss["lv"] <= 25){
+                    $num = 3;
+                } else if($mKboss["lv"] <= 50){
+                    $num = 4;
+                } else {
+                    $num = 5;
+                }
+                if($battle_st == 1){
+                    $num *= 4;
+                }
+                $sortPt = array();
+                $sortAt = array();
+                $sortId = array();
+                $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+                foreach($contributionList as $key => $member){
+                    $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                    $sortPt[$key] = $pt;
+                    $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                    $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                }
+                array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+                //$contributionList = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+                //if(empty($contributionList)){
+                //    $this->toError();
+                //    return;
+                //}
+                for($i=0;$i<$num;$i++){
+                    if($contributionList[$i]["TMemberKbossBattleLog"]["id"] == $logData["id"]){
+                        $plus_st = 0;
+                        break;
+                    }
+                }
+                if(empty($data["m_treasure_id"])){
+                    $plus_st = 1;
+                }
+            }
+            if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+                //$checkData = $this->TMemberKbossBattleLog->checkMvpData($logData["t_member_kboss_battle_id"],$logData["damage"]);
+                if(empty($contributionList)){
+                    //$contributionList = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+                    $sortPt = array();
+                    $sortAt = array();
+                    $sortId = array();
+                    $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+                    foreach($contributionList as $key => $member){
+                        $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                        $sortPt[$key] = $pt;
+                        $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                        $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                    }
+                    array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+                }
+                $checkData = $contributionList[0]["TMemberKbossBattleLog"];
+                if($checkData["id"] == $logData["id"]){
+                    $plus_st = 0;
+                }
+            }
+
+            //$this->TMemberKbossBattleLog->updateReward($logData["id"], $st, $plus_st);
+
+            // 報酬追加
+            $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+            if(!empty($getPoint)){
+                $preData = array();
+                $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                $preData["state"]              = FLG_OFF;
+                $preData["t_member_id_from"]   = 0;
+                $preData["t_member_id_to"]     = $this->member["id"];
+                $preData["item_type"]          = PRE_TYPE_POINT;
+                $preData["item_id"]            = $getPoint;
+                $preData["item_num"]           = 0;
+                if($mKboss["rare"] == 1){
+                    $preData["text_id"]           = 1;
+                }
+                $this->TMemberPresent->insertPresent($preData);
+            }
+            if(!empty($getConPoint)){
+                $preData = array();
+                $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+                $preData["state"]              = FLG_OFF;
+                $preData["t_member_id_from"]   = 0;
+                $preData["t_member_id_to"]     = $this->member["id"];
+                $preData["item_type"]          = PRE_TYPE_CON_POINT;
+                $preData["item_id"]            = $getConPoint;
+                $preData["item_num"]           = 0;
+                if($mKboss["rare"] == 1){
+                    $preData["text_id"]           = 1;
+                }
+                $this->TMemberPresent->insertPresent($preData);
+            }
+            // ﾁｹｯﾄ報酬
+            $ticketId = ITEM_ID_TICKET_S;
+            if($mKboss["rare"] == 1){
+                $ticketId = ITEM_ID_TICKET_U;
+            } else {
+                $r = mt_rand(1,100);
+                if($r < $mKboss["lv"]){
+                    $ticketId = ITEM_ID_TICKET_U;
+                }
+            }
+            $num = 1;
+            if($battle_st == 1){
+                $num = 4;
+            }
+
+            $preData = array();
+            $preData["type"]               = PRESENT_TYPE_KBOSS_DEFAULT;
+            $preData["state"]              = FLG_OFF;
+            $preData["t_member_id_from"]   = 0;
+            $preData["t_member_id_to"]     = $this->member["id"];
+            $preData["item_type"]          = PRE_TYPE_ITEM;
+            $preData["item_id"]            = $ticketId;
+            $preData["item_num"]           = $num;
+            if($mKboss["rare"] == 1){
+                $preData["text_id"]           = 1;
+            }
+            $this->TMemberPresent->insertPresent($preData);
+
+            $this->TMemberKbossBattleLog->updateReward($logData["id"], $st, $plus_st, $ticketId);
+
+            $this->TMemberKbossBattleLog->commit();
+        } catch (Exception $e) {
+            $this->TMemberKbossBattleLog->rollback();
+            $this->toError();
+            return;
+        }
+        //画像変換
+        App::import('Component', 'ImgUtil');
+        $iuc = new ImgUtilComponent($this);
+        config("defines/swf_key_defines");
+
+        // 付与アイテム
+        $this->MItem = ClassRegistry::init("MItem");
+        $mItem = $this->MItem->getDataById($ticketId);
+        $message = $mItem["name"]."を".$num."枚入手した!";
+
+        $cardImageData = $iuc->getImageDBL($iuc->getFilePath(IMAGE_TYPE_ITEM, $ticketId, SIZETYPE_M), $iuc->getFilePath(IMAGE_TYPE_ITEM, $ticketId, SIZETYPE_M, true));
+        $flashParams["ITEM_IMAGE"]     = $cardImageData["data"];
+        $flashParams["ITEM_COLORMAP"]  = $cardImageData["colormap"];
+
+        $url = SITE_URL . "/kboss_info/btl_result/".$id;
+        $url = urlencode($url ."?guid=ON");
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $url  = APPLI_URL_SP . "/?url=" . $url;
+        } else {
+            $url  = APPLI_URL . "/?url=" . $url;
+        }
+
+        //フラッシュ出力
+        $file = XML_SWF_GET_REWARD;
+        $cacheName = XML_CACHE_NAME_GET_REWARD;
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $file = str_replace(FLASH_XML_PATH, FLASH_XML_PATH_SP,$file);
+            $cacheName .= "_sp";
+        }
+
+        App::import('Component', 'SwfUtil');
+        $suc = new SwfUtilComponent($this);
+        $suc->initCache($file, $cacheName);
+        $suc->set(KEY_RESULT_URL                , $url);
+        $suc->set(KEY_MESSAGE                   , $message);
+        if (!empty($flashParams)) {
+            foreach ($flashParams as $key => $value) {
+                $suc->set($key, $value);
+            }
+        }
+        $suc->outputSwf();
+        //$this->redirect("/kboss_info/btl_result/".$id);
+    }
+*/
+
+    /**
+     * バトル報酬
+     */
+/*
+    function get_reward_plus_sp($id) {
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+            // IDが指定されていない場合
+            if(empty($id)){
+                $this->toError();
+                return;
+            }
+            $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+            $data = $this->TMemberKbossBattle->getBattleData($id);
+
+            // バトルデータが存在しない
+            if(empty($data)){
+                $this->toError();
+                return;
+            }
+            $battle_st = 0;
+            // 部位破壊
+            if($data["hp_parts_now"] <= 0){
+                $battle_st = 1;
+            // 通常討伐
+            } else if($data["hp_now"] <= 0){
+                $battle_st = 2;
+            // 逃げられた(時間切れ)
+            } else if(strtotime($data["date_end"]) < time()){
+                $battle_st = 3;
+            }
+            // まだバトル中
+            if($battle_st == 0 || $battle_st == 3){
+                $this->redirect("/kboss/top/".$id);
+            }
+
+            $myId = $this->member["id"];
+
+            // 参加チェック
+            $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+            $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+            if(empty($logData)){
+                $this->redirect("/kboss/top/".$id);
+            }
+
+            if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            // 報酬受取期限切れ
+            //if((strtotime($data["date_end"]) + 864000) < time()){
+            if((strtotime($data["modified"]) + 864000) < time()){
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            // 報酬受け取り確認
+            if($logData["reward"] < 2){
+                // まだ討伐報酬を受け取っていない
+                $this->redirect("/kboss_info/btl_result/".$id);
+            } else if($logData["reward_plus"] > 0){
+                // すでに受け取っている
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            $this->readSPSwf(SITE_URL."/kboss_info/get_reward_plus/".$id);
+        } else {
+            $this->redirect("/kboss_info/get_reward_plus/".$id);
+        }
+    }
+*/
+
+    /**
+     * バトル報酬
+     */
+/*
+    function get_reward_plus($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0 || $battle_st == 3){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        $myId = $this->member["id"];
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬受取期限切れ
+        //if((strtotime($data["date_end"]) + 864000) < time()){
+        if((strtotime($data["modified"]) + 864000) < time()){
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                exit;
+            }
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // ロック
+        try{
+            $this->TMemberKbossBattleLog->begin();
+
+            $logData = $this->TMemberKbossBattleLog->getDataByULock($logData["id"]);
+            if(empty($logData)){
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->toError();
+                return;
+            }
+
+            // 報酬受け取り確認
+            if($logData["reward"] < 2){
+                // まだ討伐報酬を受け取っていない
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->redirect("/kboss_info/btl_result/".$id);
+            } else if($logData["reward_plus"] > 0){
+                // すでに受け取っている
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->redirect("/kboss_info/btl_result/".$id);
+            }
+
+            // ボスデータ
+            $this->MKboss = ClassRegistry::init("MKboss");
+            $mKboss = $this->MKboss->getDataById($data["m_kboss_id"]);
+            if(empty($mKboss)){
+                // スマホ
+                if($this->MOBILE_DATA['carrier'] == "pc" && $this->_isiOS()){
+                    exit;
+                }
+                $this->toError();
+                return;
+            }
+
+            $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+            // 追加報酬の受取権利があるか
+            $contribution = floor((($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+            //$contribution = floor(($logData["damage"] / $mKboss["hp"]) * 100);
+            $piority = 0;
+            if($contribution >= 10){
+                if($mKboss["lv"] <= 10){
+                    $num = 2;
+                } else if($mKboss["lv"] <= 25){
+                    $num = 3;
+                } else if($mKboss["lv"] <= 50){
+                    $num = 4;
+                } else {
+                    $num = 5;
+                }
+                if($battle_st == 1){
+                    $num *= 4;
+                }
+                $sortPt = array();
+                $sortAt = array();
+                $sortId = array();
+                $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+                foreach($contributionList as $key => $member){
+                    $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                    $sortPt[$key] = $pt;
+                    $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                    $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                }
+                array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+                //$this->log($contributionList,"contributionList");
+                //$contributionList2 = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+                //$this->log($contributionList2,"contributionList");
+                //if(empty($contributionList)){
+                //    $this->toError();
+                //    return;
+                //}
+                $piority = 0;
+                $cnt = 0;
+                for($i=0;$i<$num;$i++){
+                    if(empty($contributionList[$i])){
+                        $cnt = $i;
+                        break;
+                    }
+                    if($contributionList[$i]["TMemberKbossBattleLog"]["id"] == $logData["id"]){
+                        $piority = $i+1;
+                    }
+                    //$c = floor(($contributionList[$i]["TMemberKbossBattleLog"]["damage"] / $mKboss["hp"]) * 100);
+                    $c = floor((($contributionList[$i]["TMemberKbossBattleLog"]["damage"] + ($contributionList[$i]["TMemberKbossBattleLog"]["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+                    if($c < 10){
+                        $cnt = $i;
+                        break;
+                    } else if($i == ($num - 1)) {
+                        $cnt = $num;
+                    }
+                }
+                // 貰える位置にいるか
+                if($piority != 0){
+                    $getNum = 0;
+                    if($cnt < $num){
+                        if($piority == 1){
+                            $getNum = ($num - $cnt) + 1;
+                        } else {
+                            $getNum = 1;
+                        }
+                    } else {
+                        $getNum = 1;
+                    }
+                    if(!empty($data["m_treasure_id"])){
+                        // 報酬追加
+                        for($i=0;$i<$getNum;$i++){
+                            $preData = array();
+                            $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                            $preData["state"]              = FLG_OFF;
+                            $preData["t_member_id_from"]   = 0;
+                            $preData["t_member_id_to"]     = $this->member["id"];
+                            $preData["item_type"]          = PRE_TYPE_TRE;
+                            $preData["item_id"]            = $data["m_treasure_id"];
+                            //$preData["item_num"]           = $getNum;
+                            $preData["item_num"]           = 1;
+                            if($mKboss["rare"] == 1){
+                                $preData["text_id"]           = 1;
+                            }
+                            $this->TMemberPresent->insertPresent($preData);
+                        }
+                    }
+                }
+            }
+            if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+                if(empty($contributionList)){
+                    //$contributionList = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+                    $sortPt = array();
+                    $sortAt = array();
+                    $sortId = array();
+                    $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+                    foreach($contributionList as $key => $member){
+                        $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                        $sortPt[$key] = $pt;
+                        $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                        $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                    }
+                    array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+                }
+                //$checkData = $this->TMemberKbossBattleLog->checkMvpData($logData["t_member_kboss_battle_id"],$logData["damage"]);
+                $checkData = $contributionList[0]["TMemberKbossBattleLog"];
+                if($checkData["id"] == $logData["id"]){
+
+                    // 報酬追加
+                    if(!empty($data["incentive_pt"])){
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_POINT;
+                        $preData["item_id"]            = $data["incentive_pt"];
+                        $preData["item_num"]           = 0;
+                        if($mKboss["rare"] == 1){
+                            $preData["text_id"]           = 1;
+                        }
+                        $this->TMemberPresent->insertPresent($preData);
+                    }
+                    if(!empty($data["incentive_con_pt"])){
+                        $preData = array();
+                        $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                        $preData["state"]              = FLG_OFF;
+                        $preData["t_member_id_from"]   = 0;
+                        $preData["t_member_id_to"]     = $this->member["id"];
+                        $preData["item_type"]          = PRE_TYPE_CON_POINT;
+                        $preData["item_id"]            = $data["incentive_con_pt"];
+                        $preData["item_num"]           = 0;
+                        if($mKboss["rare"] == 1){
+                            $preData["text_id"]           = 1;
+                        }
+                        $this->TMemberPresent->insertPresent($preData);
+                    }
+                    if(!empty($data["incentive_t_member_card_id"])){
+                        $this->TMemberCard = ClassRegistry::init("TMemberCard");
+                        $card = $this->TMemberCard->getRewardCard($data["t_member_id"], $data["incentive_t_member_card_id"]);
+                        if(!empty($card)){
+                            $this->TMemberCard->deleteCard($data["t_member_id"], $data["incentive_t_member_card_id"],FLG_REWARD);
+                            $preData = array();
+                            $preData["type"]               = PRESENT_TYPE_KBOSS_PLUS;
+                            $preData["state"]              = FLG_OFF;
+                            $preData["t_member_id_from"]   = 0;
+                            $preData["t_member_id_to"]     = $this->member["id"];
+                            $preData["item_type"]          = PRE_TYPE_CARD;
+                            $preData["item_id"]            = $card["m_card_id"];
+                            $preData["item_num"]           = 0;
+                            if($mKboss["rare"] == 1){
+                                $preData["text_id"]           = 1;
+                            }
+                            $this->TMemberPresent->insertPresent($preData);
+                        }
+                    }
+                }
+            }
+            $this->TMemberKbossBattleLog->updateReward($logData["id"], 2, 1);
+
+            $this->TMemberKbossBattleLog->commit();
+        } catch (Exception $e) {
+            $this->TMemberKbossBattleLog->rollback();
+            $this->toError();
+            return;
+        }
+        if($piority != 0 && !empty($data["m_treasure_id"])){
+            //画像変換
+            App::import('Component', 'ImgUtil');
+            $iuc = new ImgUtilComponent($this);
+            config("defines/swf_key_defines");
+
+            // 付与アイテム
+            $this->MTreasure = ClassRegistry::init("MTreasure");
+            $mItem = $this->MTreasure->getDataById($data["m_treasure_id"]);
+            $message = $mItem["name"]."を".$getNum."個入手した!";
+
+            $treasureImageData = $iuc->getImageDBL($iuc->getRewardTreasureImageFilePath($mItem["m_series_id"], $mItem["sort"], SIZETYPE_M),   $iuc->getRewardTreasureImageFilePath($mItem["m_series_id"], $mItem["sort"], SIZETYPE_M, true));
+
+            $flashParams["ITEM_IMAGE"]     = $treasureImageData["data"];
+            $flashParams["ITEM_COLORMAP"]  = $treasureImageData["colormap"];
+
+            //$url = SITE_URL . "/kboss_info/reward_plus/".$id;
+            //$url = SITE_URL . "/kboss_info/btl_result/".$id;
+            $url = SITE_URL . "/present/inbox/";
+            $url = urlencode($url ."?guid=ON");
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc"){
+                $url  = APPLI_URL_SP . "/?url=" . $url;
+            } else {
+                $url  = APPLI_URL . "/?url=" . $url;
+            }
+
+            //フラッシュ出力
+            $file = XML_SWF_GET_REWARD;
+            $cacheName = XML_CACHE_NAME_GET_REWARD;
+            // スマホ
+            if($this->MOBILE_DATA['carrier'] == "pc"){
+                $file = str_replace(FLASH_XML_PATH, FLASH_XML_PATH_SP,$file);
+                $cacheName .= "_sp";
+            }
+            App::import('Component', 'SwfUtil');
+            $suc = new SwfUtilComponent($this);
+            $suc->initCache($file, $cacheName);
+            $suc->set(KEY_RESULT_URL                , $url);
+            $suc->set(KEY_MESSAGE                   , $message);
+            if (!empty($flashParams)) {
+                foreach ($flashParams as $key => $value) {
+                    $suc->set($key, $value);
+                }
+            }
+            $suc->outputSwf();
+        } else {
+            //$this->redirect("/kboss_info/reward_plus/".$id);
+            $this->redirect("/kboss_info/btl_result/".$id);
+            //$this->redirect("/present/inbox/");
+        }
+
+    }
+*/
+
+    /**
+     * バトル報酬
+     */
+     /*
+    function reward_plus($id) {
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+        $battle_st = 0;
+        // 部位破壊
+        if($data["hp_parts_now"] <= 0){
+            $battle_st = 1;
+        // 通常討伐
+        } else if($data["hp_now"] <= 0){
+            $battle_st = 2;
+        // 逃げられた(時間切れ)
+        } else if(strtotime($data["date_end"]) < time()){
+            $battle_st = 3;
+        }
+        // まだバトル中
+        if($battle_st == 0){
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        $myId = $this->member["id"];
+
+        // 参加チェック
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $logData = $this->TMemberKbossBattleLog->getBattleLog($this->member["id"], $id);
+        if(empty($logData)){
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        if(empty($logData["damage"]) && empty($logData["parts_damage"])){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬受取期限切れ
+        //if((strtotime($data["date_end"]) + 864000) < time()){
+        if((strtotime($data["modified"]) + 864000) < time()){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 報酬受け取り確認
+        if($logData["reward"] < 2){
+            // まだ討伐報酬を受け取っていない
+            $this->redirect("/kboss_info/btl_result/".$id);
+        } else if($logData["reward_plus"] > 1){
+            // 受取権利なし
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // ボスデータ
+        $this->MKboss = ClassRegistry::init("MKboss");
+        $mKboss = $this->MKboss->getDataById($data["m_kboss_id"]);
+        if(empty($mKboss)){
+            $this->toError();
+            return;
+        }
+        $mKboss["name"] = $mKboss["name".$data["kboss_no"]];
+
+        $this->TMemberPresent = ClassRegistry::init("TMemberPresent");
+        // 追加報酬の受取権利があるか
+        $contribution = floor((($logData["damage"] + ($logData["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+        //$contribution = floor(($logData["damage"] / $mKboss["hp"]) * 100);
+        $piority = 0;
+        if($contribution >= 10){
+            if($mKboss["lv"] <= 10){
+                $num = 2;
+            } else if($mKboss["lv"] <= 25){
+                $num = 3;
+            } else if($mKboss["lv"] <= 50){
+                $num = 4;
+            } else {
+                $num = 5;
+            }
+            if($battle_st == 1){
+                $num *= 4;
+            }
+            $sortPt = array();
+            $sortAt = array();
+            $sortId = array();
+            $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+            foreach($contributionList as $key => $member){
+                $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                $sortPt[$key] = $pt;
+                $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+            }
+            array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+            //$contributionList = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+            //if(empty($contributionList)){
+            //    $this->toError();
+            //    return;
+            //}
+            $piority = 0;
+            $cnt = 0;
+            for($i=0;$i<$num;$i++){
+                if(empty($contributionList[$i])){
+                    $cnt = $i;
+                    break;
+                }
+                if($contributionList[$i]["TMemberKbossBattleLog"]["id"] == $logData["id"]){
+                    $piority = $i+1;
+                }
+                //$c = floor(($contributionList[$i]["TMemberKbossBattleLog"]["damage"] / $mKboss["hp"]) * 100);
+                $c = floor((($contributionList[$i]["TMemberKbossBattleLog"]["damage"] + ($contributionList[$i]["TMemberKbossBattleLog"]["parts_damage"] * 4.5)) / $mKboss["hp"]) * 100);
+                if($c < 10){
+                    $cnt = $i;
+                    break;
+                } else if($i == ($num - 1)) {
+                    $cnt = $num;
+                }
+            }
+            // 貰える位置にいるか
+            if($piority != 0){
+                $getNum = 0;
+                if($cnt < $num){
+                    if($piority == 1){
+                        $getNum = ($num - $cnt) + 1;
+                    } else {
+                        $getNum = 1;
+                    }
+                } else {
+                    $getNum = 1;
+                }
+                $this->MTreasure = ClassRegistry::init("MTreasure");
+                $mTreasure = $this->MTreasure->getDataById($data["m_treasure_id"]);
+                $this->set("mTreasure", $mTreasure);
+                $this->set("treasure_num", $getNum);
+            }
+        }
+        if(!empty($data["incentive_pt"]) || !empty($data["incentive_con_pt"]) || !empty($data["incentive_t_member_card_id"])){
+            if(empty($contributionList)){
+                //$contributionList = $this->TMemberKbossBattleLog->getContributionList($logData["t_member_kboss_battle_id"]);
+                $sortPt = array();
+                $sortAt = array();
+                $sortId = array();
+                $contributionList = $this->TMemberKbossBattleLog->getBattleMember($id);
+                foreach($contributionList as $key => $member){
+                    $pt = $member["TMemberKbossBattleLog"]["damage"] + ($member["TMemberKbossBattleLog"]["parts_damage"] * 4.5);
+                    $sortPt[$key] = $pt;
+                    $sortAt[$key] = $member["TMemberKbossBattleLog"]["atk_num"];
+                    $sortId[$key] = $member["TMemberKbossBattleLog"]["id"];
+                }
+                array_multisort($sortPt, SORT_DESC, SORT_NUMERIC, $sortAt, SORT_DESC, SORT_NUMERIC, $sortId, SORT_ASC, SORT_NUMERIC, $contributionList);
+            }
+            //$checkData = $this->TMemberKbossBattleLog->checkMvpData($logData["t_member_kboss_battle_id"],$logData["damage"]);
+            $checkData = $contributionList[0]["TMemberKbossBattleLog"];
+            if($checkData["id"] == $logData["id"]){
+
+                // 報酬追加
+                if(!empty($data["incentive_pt"])){
+                    $this->set("point_num", $data["incentive_pt"]);
+                }
+                if(!empty($data["incentive_con_pt"])){
+                    $this->set("con_point_num", $data["incentive_con_pt"]);
+                }
+                if(!empty($data["incentive_t_member_card_id"])){
+                    $this->TMemberCard = ClassRegistry::init("TMemberCard");
+                    $card = $this->TMemberCard->getDelCard($data["t_member_id"], $data["incentive_t_member_card_id"]);
+                    if(!empty($card)){
+                        $this->MCard = ClassRegistry::init("MCard");
+                        $mCard = $this->MCard->getDataById($card["m_card_id"]);
+                        if(!empty($mCard["m_skill_id"])){
+                            $this->MSkill = ClassRegistry::init("MSkill");
+                            $mSkill = $this->MSkill->getDataById($mCard["m_skill_id"]);
+                            $mCard["MSkill"] = $mSkill;
+                        }
+                        $this->set("mCard", $mCard);
+                    }
+                }
+            }
+        }
+        $this->set("id", $id);
+    }
+    */
+
+
+    /**
+     * 一括お礼
+     */
+    function thanks($id) {
+
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+
+        // 勝利していない
+        if($data["hp_parts_now"] > 0 && $data["hp_now"] > 0){
+
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        // 発見者でない
+        if($data["t_member_id"] != $this->member["id"]){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // TODO:挨拶をすでにしているか
+        if($data["contact_flg"] != 0){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 参加者
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $memberList = $this->TMemberKbossBattleLog->getBattleMember($id);
+        if(empty($memberList)){
+            $this->toError();
+            return;
+        }
+        $ids = array();
+        foreach($memberList as $member){
+            if($member["TMemberKbossBattleLog"]["t_member_id"] != $this->member["id"]){
+                $ids[] = $member["TMemberKbossBattleLog"]["t_member_id"];
+            }
+        }
+        if(empty($ids)){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 本日すでにお礼している人数を取得して獲得絆ptを取得
+        $this->TContactHistory = ClassRegistry::init("TContactHistory");
+        $count = $this->TContactHistory->getTodayCount($this->member["id"],$ids,1);
+        $num = (count($ids) - $count);
+        if($num < 1){
+            $num = 0;
+        }
+        $getConPoint = $num * 10;
+
+        $myData = $this->TMember->getMemberContact($this->member["id"]);
+
+        $comment = "共闘してくれてありがとう!!";
+
+        $this->set("id"             , $id);
+        $this->set("myData"         , $myData);
+        $this->set("getConPoint"    , $getConPoint);
+        $this->set("comment"        , $comment);
+        $rvp = isset($this->params["url"]["rvp"]) ? $this->params["url"]["rvp"] : 0;
+        if($rvp != 0 && $rvp != 1 && $rvp != 10 && $rvp != 11){
+            $rvp = 0;
+        }
+        $this->set("rvp"            , $rvp);
+        // スマホ
+        if($this->MOBILE_DATA['carrier'] == "pc"){
+            $this->render("/sp/kboss_info/thanks");
+        }
+
+    }
+
+    /**
+     * 一括お礼実行
+     */
+    function do_comment($id) {
+
+        // IDが指定されていない場合
+        if(empty($id)){
+            $this->toError();
+            return;
+        }
+        $this->TMemberKbossBattle = ClassRegistry::init("TMemberKbossBattle");
+        $data = $this->TMemberKbossBattle->getBattleData($id);
+
+        // バトルデータが存在しない
+        if(empty($data)){
+            $this->toError();
+            return;
+        }
+
+        // 勝利していない
+        if($data["hp_parts_now"] > 0 && $data["hp_now"] > 0){
+
+            $this->redirect("/kboss/top/".$id);
+        }
+
+        // 発見者でない
+        if($data["t_member_id"] != $this->member["id"]){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 挨拶をすでにしているか
+        if($data["contact_flg"] != 0){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 参加者
+        $this->TMemberKbossBattleLog = ClassRegistry::init("TMemberKbossBattleLog");
+        $memberList = $this->TMemberKbossBattleLog->getBattleMember($id);
+        if(empty($memberList) || count($memberList) < 2 ){
+            $this->toError();
+            return;
+        }
+        $ids = array();
+        foreach($memberList as $member){
+            if($member["TMemberKbossBattleLog"]["t_member_id"] != $this->member["id"]){
+                // ブラックリスト
+                if (!$this->isBlackList($member["TMemberKbossBattleLog"]["t_member_id"])) {
+                    $ids[] = $member["TMemberKbossBattleLog"]["t_member_id"];
+                }
+            }
+        }
+
+        if(empty($ids)){
+            $this->redirect("/kboss_info/btl_result/".$id);
+        }
+
+        // 本日すでにお礼している人数を取得して獲得絆ptを取得
+        $this->TContactHistory = ClassRegistry::init("TContactHistory");
+        $count = $this->TContactHistory->getTodayCount($this->member["id"],$ids,1);
+        $getConPoint = (count($ids) - $count) * 10;
+
+        $myData = $this->TMember->getMemberContact($this->member["id"]);
+
+        $comment = $this->data["message"];
+        $comment = $this->convertTextForApi($comment);
+
+        // テキストデータ
+        if (!empty($comment)) {
+            // バリデート
+            $errorMessage = $this->_checkTextData($this->member["id"], $this->member["id"], $comment, 30, true);
+            if (!empty($errorMessage)) {
+                $this->set("errorMessage" , $errorMessage);
+                $this->render("/errors/message");
+                return;
+            }
+        }
+
+        // 全仲間リスト
+        $this->TFriend = ClassRegistry::init("TFriend");
+        $friends = $this->TFriend->getFriendsAll($this->member["id"]);
+
+        try {
+
+            // トランザクション開始
+            $this->TMember->begin();
+
+            // 重複防止のためロックを取得
+            $member = $this->TMember->getDataByULock($this->member["id"]);
+
+            $data = $this->TMemberKbossBattle->getBattleData($id);
+            // 挨拶をすでにしているか
+            if($data["contact_flg"] == 0){
+                // テキストデータ
+                //if (!empty($comment)) {
+                //    // バリデート
+                //    $errorMessage = $this->_checkTextData($this->member["id"], $this->member["id"], $comment, 30, true);
+                //    if (!empty($errorMessage)) {
+                //        $this->set("errorMessage" , $errorMessage);
+                //        $this->render("/errors/message");
+                //        return;
+                //    }
+                //}
+                $textIds = array();
+                foreach($ids as $membarId){
+                    // ブラックリスト
+                    //if (!$this->isBlackList($membarId)) {
+                        // TextDataAPIを使用しTextDataを登録
+                        $ret = $this->TextdataApi->addTextdata(TEXTDATA_GROUP_NAME_CONTACT_COMMENT, $membarId, $this->member["id"], $comment);
+                        $textIds[$membarId] = $ret["textData"]["id"];
+                    //}
+                }
+
+                foreach($ids as $membarId){
+                    $textId = empty($textIds[$membarId]) ? "" : $textIds[$membarId];
+                    $isFriend = isset($friends[$membarId]) ? FLG_ON : FLG_OFF;
+                    // 交流履歴
+                    $this->TContactHistory->insertContactHistoryWithTextId($this->member["id"], $membarId, $textId, $isFriend, 1);
+                }
+
+                // お礼完了状態に更新
+                $this->TMemberKbossBattle->updateContactFlg($id);
+
+                $conPointData = array();
+                $conPointData["id"] = $this->member["id"];
+                $conPointData["contact_point"] = $myData["contact_point"] + $getConPoint;
+                if($conPointData["contact_point"] > CONTACT_PT_MAX){
+                    $conPointData["contact_point"] = CONTACT_PT_MAX;
+                }
+
+                $this->TMember->updateContact($conPointData);
+            }
+
+            // コミット
+            $this->TMember->commit();
+
+        } catch (Exception $e) {
+
+            // ロールバック
+            $this->TMember->rollback();
+
+            // エラーログ書き出し
+            $this->writeExceptionLog($e, "レイド一括挨拶処理");
+
+            // エラー画面表示
+            $this->redirectFatalError();
+
+        }
+        $rvp = isset($this->data["rvp"]) ? $this->data["rvp"] : 0;
+        if($rvp != 0 && $rvp != 1 && $rvp != 10 && $rvp != 11){
+            $rvp = 0;
+        }
+        $this->redirect("/kboss_info/btl_result/{$id}?rvp={$rvp}");
+
+    }
+
+}

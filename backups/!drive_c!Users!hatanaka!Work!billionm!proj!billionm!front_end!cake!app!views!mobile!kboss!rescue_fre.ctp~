@@ -1,0 +1,89 @@
+<div align="center" style="text-align:center;background-color:#620F08;color:#FFFFFF;"><img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%" height="3"><br />救援要請<br /><img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br /></div><img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div align="left" style="text-align:left;">
+
+
+<?php if(empty($members)){ ?>
+<?php } else { ?>
+
+<?php if($checkError){ ?>
+<span style="font-size:xx-small;color:#ff4142;">
+<?php e($ktai->emojiByUnicode(0xE702,"#FF0000"))?>ﾁｪｯｸﾎﾞｯｸｽにﾁｪｯｸしてください｡</span><br />
+<?php } ?>
+
+</div>
+
+<?php e($myForm->create("", array("type" => "POST", "url" => "/kboss/set_rescue_fre/".$kboss["id"]))); ?>
+<?php /*
+<input type="checkbox" name="data[check]" value="1" />この仲間に呼びかけます｡<br />
+<?php foreach($members as $member){ ?>
+<input type="hidden" name="data[members][]" value="<?php e($member["id"]);?>" />
+<?php } ?>
+*/ ?>
+
+<?php e($ktai->emojiByUnicode(0xE6E6,"#FFFFFF"))?><?php e($myForm->submit("仲間を呼ぶ", array("div"=>false, "style" => "color:#000000","accessKey" => 5)));?><?php e($ktai->emojiByUnicode(0xE6E6,"#FFFFFF"))?><br />
+<?php /*
+<?php e($myForm->end()); ?>
+*/ ?>
+<?php } ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<div style="background:#131A2E;">
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+
+<?php if(empty($members)){ ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<span style="color:#ff4142;">仲間を探しましょう!!あなたの冒険がもっと楽しくなりますよ!!</span><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div align="center" style="text-align:center;">
+[<a href="?url=<?php e(urlencode(SITE_URL."/fre/search/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">仲間を探す</span></a>]<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+[<a href="?url=<?php e(urlencode(SITE_URL."/fre/search_auto/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">おまかせで仲間申請</span></a>]<br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+
+<?php } else { ?>
+<?php foreach($members as $member){ ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" width="10"><span style="font-size:x-small;">
+<input type="checkbox" name="data[members][]" value="<?php e($member["id"]);?>" checked="checked" /></span>
+</td>
+<td align="left" width="40"><span style="font-size:x-small;"><img src="<?php e($avatarList[$member["id"]]); ?>" width="30" height="40" />
+</span></td><td align="left" valign="top" ><span style="font-size:x-small;">
+<?php e($myForm->attrTagS($member["attribute"])); ?><?php if(!empty($member["title"])){e("&nbsp;".$member["title"]."&nbsp;");} ?><span style="color:#ffffff;"><?php e($member["name"]); ?><br />
+<span style="color:#bd9671;">Lv. </span><?php e($member["lv"])?> <span style="color:#bd9671;">仲間 </span><?php e($member["friend_num"])?>人<br />
+</span></span></td>
+</tr>
+</table>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+
+<?php } ?>
+</div>
+<?php } ?>
+<?php if(!empty($members)){ ?>
+<?php e($myForm->end()); ?>
+<?php } ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div align="left" style="text-align:left;">
+<?php e($ktai->emojiByUnicode(0xE697,"#FFFFFF"))?><a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/{$kboss["id"]}"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">戻る</span></a><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<div align="left" style="text-align:left;">
+<span style="font-size:xx-small;color:#ff4142;">
+<?php e($ktai->emojiByUnicode(0xE702,"#FF0000"))?>一度呼びかけた仲間は30分経過しないと再度呼びかけられません｡<br />
+</span>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</div>

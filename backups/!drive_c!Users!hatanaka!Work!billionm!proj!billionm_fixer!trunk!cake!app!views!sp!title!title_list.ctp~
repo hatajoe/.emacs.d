@@ -1,0 +1,122 @@
+<div class="hMain"><!--<?php e($nickname); ?>-->称号ﾘｽﾄ</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div align="left" style="text-align:left;">
+<span style="color:#bd9671;">設定中の称号</span>
+<span style="color:#ffffff;"><?php e((empty($nowTitle) ? "なし" : $nowTitle["name"])); ?></span><br />
+
+<span style="color:#bd9671;">次の称号まで</span>
+
+<?php if(!empty($hintTitle)){ ?>
+<?php 
+    switch($hintTitle["type"]){
+        case 1:
+            $conName = "ｲﾍﾞﾝﾄの";
+            break;
+        case 2:
+            $conName = "";
+            break;
+        case 3:
+            $conName = "参加した";
+            break;
+        case 4:
+            $conName = "救援要請の";
+            break;
+        case 5:
+            $conName = "共闘ｸｴｽﾄで";
+            break;
+    }
+?>
+
+<?php e($conName); ?>蝕の魔獣をあと<?php e($hintTitle["nextParam"]); ?>回討伐<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php } ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+</div>
+
+<div style="background:#1F2424;">
+<div class="hHan"><span style="color:#FFCC33;">名乗る称号</span>を<span style="color:#FFCC33;">選択</span></div>
+
+<?php if(empty($list)){ ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<span style="color:#ff4142;">×名乗る称号を持っていません×</span><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php if ($type == 2) { ?>討伐<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/2"))?>&guid=ON">討伐</a><?php } ?>&nbsp;|
+<?php if ($type == 3) { ?>参加<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/3"))?>&guid=ON">参加</a><?php } ?>&nbsp;|
+<?php if ($type == 4) { ?>救援<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/4"))?>&guid=ON">救援</a><?php } ?>&nbsp;|
+<?php if ($type == 5) { ?>共闘<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/5"))?>&guid=ON">共闘</a><?php } ?>&nbsp;|
+<?php if ($type == 1) { ?>ｲﾍﾞﾝﾄ<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/1"))?>&guid=ON">ｲﾍﾞﾝﾄ</a><?php } ?><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } else { ?>
+<?php if(count($list) == 1 && !empty($list[0]["next"])){ ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<span style="color:#ff4142;">×名乗る称号を持っていません×</span><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } ?>
+<div style="background:#363D3D;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php if ($type == 2) { ?>討伐<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/2"))?>&guid=ON">討伐</a><?php } ?>&nbsp;|
+<?php if ($type == 3) { ?>参加<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/3"))?>&guid=ON">参加</a><?php } ?>&nbsp;|
+<?php if ($type == 4) { ?>救援<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/4"))?>&guid=ON">救援</a><?php } ?>&nbsp;|
+<?php if ($type == 5) { ?>共闘<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/5"))?>&guid=ON">共闘</a><?php } ?>&nbsp;|
+<?php if ($type == 1) { ?>ｲﾍﾞﾝﾄ<?php } else {?><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/1"))?>&guid=ON">ｲﾍﾞﾝﾄ</a><?php } ?><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php e($myForm->create("form", array("type" => "POST", "url" => "/title/set_title"))); ?>
+<?php if(!empty($rb)){ ?>
+<?php e($myForm->hidden('rb', array("value" => $rb)));?>
+<?php e($myForm->hidden('rvp', array("value" => $rvp)));?>
+<?php } ?>
+
+</div>
+<div align="left" style="text-align:left;">
+
+
+
+<?php foreach($list as $title){ ?>
+
+<?php if(empty($title["next"])){ ?>
+<label for="<?php e($title["id"]); ?>" onclick="">
+<div style="background:#666666;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="100%" height="1"><br />
+</div>
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr><td width="100%" align="left" valign="top">
+<span style="color:#ffffff;">
+<input type="radio" name="data[form][id]" id="<?php e($title["id"]); ?>" value="<?php e($title["id"]); ?>" /><?php e($title["name"]); ?></span>
+<?php } else { ?>
+<div style="background:#666666;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="100%" height="1"><br />
+</div>
+<span style="color:#ffffff;">？？？</span>
+<?php } ?>
+<hr style="border:none;border-top:dashed 1px #666666;height:1px;width:100%;">
+<?php e($title["description"]); ?><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</tr></td></table>
+</label>
+<?php } ?>
+
+<img src="<?php e(SITE_URL); ?>/sp/image/com/border_std01.gif" width="100%">
+<?php } ?>
+
+</div></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+<?php if(!empty($list) && (count($list) > 1 || (count($list) == 1 && empty($list[0]["next"])) )){ ?><?php e($myForm->submit("称号を変更", array("div"=>false, "class"=>"btMain")));?><br />
+<?php } ?>
+<?php e($myForm->end()); ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+
+<!--
+<?php // ▼ページャ▼?>
+<?php echo $this->element('sp_pager', array('page' => $page, 'next' => $next, 'url' => "/title/title_list/{$type}", 'get' => "rb={$rb}&rvp={$rvp}", 'dispType' => 2)) ?>
+<?php // ▲ページャ▲?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+-->
+
+<?php // ▼ページャ▼?>
+<?php echo $this->element('sp_pager', array('page' => $page, 'next' => $next, 'url' => "/title/title_list/{$type}", 'get' => "rb={$rb}&rvp={$rvp}")) ?>
+<?php // ▲ページャ▲?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+

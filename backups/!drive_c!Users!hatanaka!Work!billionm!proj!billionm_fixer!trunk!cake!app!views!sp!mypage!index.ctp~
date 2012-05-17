@@ -1,0 +1,607 @@
+<a name="m_top" id="m_top"></a>
+<div align="center" style="text-align: center;width: 100%; background-image : url(http://sp.pf-img-a.mbga.jp/12010104?url=http%3A%2F%2Fwww.lovren.com%2Fsp%2Fimage%2Fcom%2Fmypage_bg.jpg); background-repeat: repeat-x; background-size:cover; background-position: center;">
+<?php /*
+<?php if($flaFlg == FLG_ON){?>
+<?php if(!empty($isiOS)){ ?>
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr><td width="20%">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="100%" /><br />
+</td><td align="center" style="text-align:center;">
+<div id="container"></div>
+</td><td width="20%">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="100%" /><br />
+</td></tr></table>
+<?php } else { ?>
+<object data="<?php e(SITE_URL); ?>/mypage/mypage_flash" type="application/x-shockwave-flash" width="280" height="260" ><param name="bgcolor" value="000000"><param name="loop" value="off"><param name="quality" value="high"><embed src="<?php e(SITE_URL); ?>/mypage/mypage_flash" width="280" height="260" loop="off" quality="high" bgcolor="#000000"></embed></object>
+<?php } ?>
+<?php }else{?>
+*/?>
+<?php if(!empty($highStatusCards[3]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[3]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[1]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[1]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php /*リーダーカード*/?>
+<?php e($myForm->cardImage($leader["m_card_id"], SIZETYPE_BUP)); ?>
+<?php if(!empty($highStatusCards[2]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[2]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[4]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[4]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<div>
+<?php if(!empty($highStatusCards[8]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[8]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[6]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[6]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[5]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[5]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[7]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[7]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[9]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[9]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+</div>
+</div>
+
+<img src="<?php e(SITE_URL); ?>/sp/image/com/border_line1.gif" width="100%"><br />
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/mis/mis_list/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_q.jpg" width="104" /></a><a href="?url=<?php e(urlencode(SITE_URL."/mix/index_sum/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_s.jpg" width="104" /></a><a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_g.jpg" width="104" /></a><br />
+<?php if(!empty($mKbossEvent)) { ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_ks.jpg" width="104" /></a><a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/board/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_k.jpg" width="104" /></a><br />
+<?php } else { ?>
+<img src="<?php e(SITE_URL)?>/sp/image/button/button_top_ks_2.jpg" width="104" /><img src="<?php e(SITE_URL)?>/sp/image/button/button_top_k_2.jpg" width="104" /><br />
+<?php } ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+
+
+<?php //使い魔上限表示▼▼▼ ?>
+<?php if ($member["card_num"] >= $member["card_max"]) { ?>
+<div style="background:#9B0000;">
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php e($ktai->emojiByUnicode(0xE737,"#FF9900"))?><span style="color:#ffcc33;" class="blinking">使い魔を上限数所持しています</span><?php e($ktai->emojiByUnicode(0xE737,"#FF9900"))?><br />
+<!--<?php e($member["card_num"])?>枚-->
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+<div style="color:#FFFFFF;">
+これ以上新しい使い魔が受け取れません。<br />
+合成や売却で使い魔を減らしてください。</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/mix/index/"))?>&guid=ON" class="btShort">合成</a><a href="?url=<?php e(urlencode(SITE_URL."/mycard/sell_list/"))?>&guid=ON" class="btShort">売却</a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php }?>
+<?php //使い魔上限表示▲▲▲ ?>
+
+<!--
+<?php // CPstartdash ?>
+<?php if(($lag["day"] <= 5) || ($clearNum != $receiveNum)) {?>
+<div style="background:#9B0000;">
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<span style="" class="blinking"><?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?></span><a href="?url=<?php e(urlencode(SITE_URL."/cam_beginner/index/"))?>?guid=ON">今だけ!ｽﾀｰﾄﾀﾞｯｼｭCP中<?php e($ktai->emojiByUnicode(0xE702,"#FF0000"))?></a><span style="" class="blinking"><?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?></span><br /><img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4">
+</div>
+<?php }?>
+<?php // /CPstartdash ?>
+-->
+
+<?php //▼新着▼ ?>
+<?php if($newCnt > 0){?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?><a href="#news"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">新着情報が<?php e($newCnt)?>件あります</span></a><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php }?>
+<?php //▲新着▲ ?>
+
+
+
+<?php //▼ブースト中▼ ?>
+<?php if(!empty($member["boost_end_date"]) && strtotime($member["boost_end_date"]) > time()){ ?>
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+<div style="background:#11469F;">
+<?php e($ktai->emojiByUnicode(0xE713,"#FF9900"))?><span style="color:#ffffff;"><span style="color:#ffcc33;" class="blinking"><?php e(date("m/d H:i",strtotime($member["boost_end_date"]))); ?></span>まで<span style="color:#FFCC33;">経験値</span>､<span style="color:#FFCC33;">θ</span>の<span style="color:#FFCC33;">取得量2倍!!</span></span><br />
+</div>
+<?php } ?>
+<?php //▲ブースト中▲ ?>
+
+<?php //▼アルカナ覚醒▼ ?>
+<?php if(!empty($arcanaNum["limit"]) && !empty($mKbossEvent)){ ?>
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+<div style="background:#90119F;">
+<?php e($ktai->emojiByUnicode(0xE713,"#FF9900"))?><span style="color:#ffcc33;" class="blinking">使い魔覚醒中!!</span>残り<span style="color:#ffffff;"><?php e($arcanaNum["limit"]); ?>間!<br /></span>
+</div>
+<?php } ?>
+<?php //▲アルカナ覚醒▲ ?>
+
+
+<?php /* ?>
+<?php if($member["lv"] >= RAID_START_LV){ ?>
+<?php
+    if(!empty($nowKbossBattle)){
+        $limitTime = strtotime($nowKbossBattle["date_end"]) - time();
+        if($limitTime < 3600){
+            $limitTimeStr = ceil($limitTime / 60)."分";
+        } else {
+            $limitTimeStr = floor($limitTime / 3600)."時間".ceil(($limitTime % 3600) / 60)."分";
+        }
+?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php if(!empty($nowKbossBattle)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/select_deck/".$nowKbossBattle["id"]))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗<?php e($nowKbossBattle["name"])?>LV<?php e($nowKbossBattle["lv"])?>発生中あと<?php e($limitTimeStr); ?>┛</span></a><br />
+<?php }?>
+<?php if(!empty($nowRescueKbossBattle)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/".$nowRescueKbossBattle["id"]))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗<?php e($nowRescueKbossBattle["nickname"])?>さんから救援要請が来ています┛</span></a><br />
+<?php }?>
+<?php if(!empty($notReceiptKbossBattle)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/not_receipt/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗未確認の討伐結果があります┛</span></a><br />
+<?php }?>
+<?php if(empty($nowKbossBattle) && empty($nowRescueKbossBattle) && empty($notReceiptKbossBattle)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/mis/mis_list/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗任務で魔獣をさがせ┛</span></a><br />
+<?php }?>
+<?php if($mKbossEventDiff <= (60*60*24*3)){?>
+ｲﾍﾞﾝﾄ終了まで後<?php e($myForm->getTime($mKbossEventDiff))?><br />
+<?php }?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+<?php } ?>
+<?php } ?>
+<?php */ ?>
+
+<?php //▼蝕status▼ ?>
+<?php if($member["lv"] >= RAID_START_LV){ ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php if(!empty($nowKbossBattle) && !empty($mKbossEvent)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/select_deck/".$nowKbossBattle["id"]))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗<?php e($nowKbossBattle["name"])?>Lv.<?php e($nowKbossBattle["lv"])?>発生中┛</span></a><br />
+<?php }?>
+<?php if(!empty($nowRescueKbossBattle) && !empty($mKbossEvent)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/".$nowRescueKbossBattle["id"]))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($nowRescueKbossBattle["nickname"])?>さんから救援要請!!</span></a><br />
+<?php }?>
+<?php if(!empty($notReceiptKbossBattle)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/not_receipt/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗未確認の討伐結果があります┛</span></a><br />
+<?php if(empty($mKbossEvent) && !empty($lastKbossEndDate)){ ?>
+ｲﾍﾞﾝﾄは<?php e($lastKbossEndDate); ?>に終了しました<br />
+<?php } ?>
+<?php }?>
+<?php if(empty($nowKbossBattle) && empty($nowRescueKbossBattle) && empty($notReceiptKbossBattle) && !empty($mKbossEvent)){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/mis/mis_list/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif" width="95%" ><br /><span style="color:<?php e(LINK_MAIN_COLOR)?>;">┗任務で魔獣をさがせ┛</span></a><br />
+<?php }?>
+<?php if($mKbossEventDiff <= (60*60*24*3) && !empty($mKbossEvent)){?>
+ｲﾍﾞﾝﾄ終了まで後<?php e($myForm->getTime($mKbossEventDiff))?><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+<?php }?>
+<?php } ?>
+<?php //▲蝕status▲ ?>
+
+
+
+<?php //★ｺﾝﾌﾟｶﾞﾁｬﾊﾞﾅｰ変更 ?>
+<?php /*
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_gacha_001.gif"></a><br /><a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON">┗<?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?>究極召喚ｶﾞﾁｬでｽﾀｰﾄﾀﾞｯｼｭ!<?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?>┛</a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+*/ ?>
+
+
+<?php /*
+<?php $randBanner = mt_rand(0,1);?>
+<?php if($randBanner == 0){?>
+<a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_gacha_001.gif"></a><br /><a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON">┗<?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?>究極召喚ｶﾞﾁｬでｽﾀｰﾄﾀﾞｯｼｭ!<?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?>┛</a><br />
+<?php }else{?>
+<a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_r0002_2.gif"></a><br />
+<?php }?>
+*/ ?>
+
+
+<img src="<?php e(SITE_URL); ?>/sp/image/com/border_line1.gif" width="100%"><br />
+
+<div style="background:#0B152E;">
+<div style="background:#0E2A64;">
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td width="50" valign="bottom" style="vertical-align:bottom;"><img src="<?php e(SITE_URL); ?>/sp/image/com/othery_l.gif"></td>
+<td align="center" style="text-align:center;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="2"><br />
+<?php e($myForm->attrIcon($member["attribute"]))?><?php e($myForm->attrTag($member["attribute"]))?><?php if(!empty($member["title"])){e("&nbsp;".$member["title"]."&nbsp;");} ?><br /><a href="?url=<?php e(urlencode(SITE_URL."/prof/report/"))?>&guid=ON"><?php e($member["name"])?></a><br />
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="2" /><br /></td>
+
+<td width="50" valign="bottom" style="vertical-align:bottom;"><img src="<?php e(SITE_URL); ?>/sp/image/com/othery_r.gif">
+</td></tr>
+</table>
+<img src="<?php e(SITE_URL); ?>/sp/image/com/border_line1.gif" width="100%"><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8" /><br />
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr><td align="center" style="text-align:center;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="2" /><br />
+<?php /*★クエストptゲージ*/ ?>
+<?php e($ktai->emojiByUnicode(0xE68D,"#FF0000"))?>
+<span style="color:#ba987a;">行動力</span>
+<?php if($member["act_now"]>=$member["act_max"]){ ?>
+<img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_l.gif" ><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_min.gif" width="100" height="14"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_r.gif">
+
+<?php }elseif($member["act_now"]=="0"){ ?>
+<img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_l.gif"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_no.gif" width="100" height="14"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_r.gif">
+<?php
+    } else {
+        $p = floor(($member["act_now"]/$member["act_max"])*100);
+?>
+
+<img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_l.gif" width="5" height="14"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_min.gif" width="<?php e($p); ?>" height="14"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_no.gif" width="<?php e((100-$p)); ?>" height="14"><img src="<?php e(SITE_URL); ?>/sp/image/gage/gaget_r.gif" width="5" height="14">
+<?php } ?>
+
+<?php e($member["act_now"]); ?>/<?php e($member["act_max"]); ?>
+
+</td></tr>
+</table>
+
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td align="left"><?php e($ktai->emojiByUnicode(0xE71A,"#FF9900"))?><span style="color:#ba987a;">Lv.　　</span><?php e($member["lv"])?><?php if($member["stup"]){?>(<a href="?url=<?php e(urlencode(SITE_URL."/mydata/stup/"))?>&guid=ON">+<?php e($member["stup"])?></a>)<?php }?></td>
+<td align="left">
+
+<?php e($ktai->emojiByUnicode(0xE642,"#FF8000"))?><span style="color:#ba987a;">コスト </span><?php e($member["atk_point_now"])?>/<?php e($member["atk_point_max"])?>
+
+</td>
+</tr>
+<tr>
+<td align="left">
+
+<?php e($ktai->emojiByUnicode(0xE715,"#800000"))?><span style="color:#ba987a;">資　金 </span><?php e($member["point"])?><span style="color:#99FF00;">θ</span>
+
+</td>
+<td align="left">
+
+<?php e($ktai->emojiByUnicode(0xE66C,"#0000FF"))?><span style="color:#ba987a;"><?php // e(UNIT_CONTACT_POINT)?>絆&nbsp;p&nbsp;t </span><?php e($member["contact_point"])?>
+</td>
+</tr>
+<tr>
+<td align="left">
+
+<?php e($ktai->emojiByUnicode(0xE6A1,"#FF8000"))?><span style="color:#ba987a;">使い魔 </span><a href="?url=<?php e(urlencode(SITE_URL."/mycard/index/"))?>&guid=ON"><?php e($member["card_num"]); ?></a>/<?php e($member["card_max"])?></td>
+
+<td align="left">
+<?php e($ktai->emojiByUnicode(0xE6F0,"#FF00FF"))?><span style="color:#ba987a;">仲　間 </span><a href="?url=<?php e(urlencode(SITE_URL."/fre/fre_list/"))?>&guid=ON"><?php e($member["friend_num"])?></a>/<?php e($member["friend_max"])?></td>
+</tr>
+<tr>
+<td align="left" colspan="2">
+
+<?php e($ktai->emojiByUnicode(0xE713,"#FF9900"))?><span style="color:#ba987a;">称　号 </span><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/"))?>&guid=ON"><?php e($titleCnt); ?></a></td>
+
+</tr>
+</table>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="2" /><br />
+
+<?php if(!empty($profileText)){?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/prof/comment/"))?>&guid=ON">
+
+<div style="text-align:center; margin:0; padding:0; background:#246BFF;"><img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="1"></div>
+
+<table cellspacing="0" cellpadding="0" width="100%" style="background:#0E2A64;">
+<tr><td align="left" valign="top">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<span style="color:#E1D6B0;"><?php e($ktai->emojiByUnicode(0xE689,"#FF8000"))?><?php e($profileText)?>
+(<?php e(date("n/j",strtotime($member["comment_modified"])))?>更新)</span><br />
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</td></tr><tr><td align="right" valign="top">
+<hr style="border:none;border-top:dashed 1px #666666;height:1px;width:100%;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<span style="color:#E1D6B0;">⇒</span>自己紹介を編集<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</tr></td></table>
+</a>
+
+
+
+<?php }else{?>
+
+<a href="?url=<?php e(urlencode(SITE_URL."/prof/comment/"))?>&guid=ON">
+
+<div style="text-align:center; margin:0; padding:0; background:#246BFF;"><img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="1"></div>
+
+<table cellspacing="0" cellpadding="0" width="100%" style="background:#0E2A64;">
+<tr><td align="left" valign="top">
+
+<span style="color:#ba987a;">自己紹介しよう!<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</td></tr><tr><td align="right" valign="top">
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+<hr style="border:none;border-top:dashed 1px #295DAC;height:1px;color:width:100%;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<span style="color:#ba987a;">⇒</span>自己紹介を編集
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</tr></td></table>
+</a>
+
+<?php }?>
+<img src="<?php e(SITE_URL); ?>/sp/image/com/border_line1.gif" width="100%"><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8"><br />
+
+<?php if($member["act_now"] < $member["act_max"]){?>
+<div align="right" style="text-align:right;">
+⇒<a href="?url=<?php e(urlencode(SITE_URL."/item/recovery_item/".ITEM_ID_RECOVERY."?retpm=myp"))?>">回復ｱｲﾃﾑを使う</a>
+</div></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php }?>
+
+<div align="center" style="text-align:center;">
+
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr><td align="center" valign="center">
+
+<?php //▼日記CP▼ ?>
+<?php if(empty($mDiaryCampaign)){?>
+<?php // キャンペーン終了時?>
+<?php }elseif ($mDiaryCampaign["date_to"] < date('Y-m-d H:i:s')) { ?>
+<?php // キャンペーン開始前?>
+<?php } elseif($mDiaryCampaign["date_from"] > date('Y-m-d H:i:s')) { ?>
+<?php }else{?>
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_diary/index/{$mDiaryCampaign["id"]}"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_dialy.jpg" width="153"></a><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_diary/index/{$mDiaryCampaign["id"]}"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE715,"#800000"))?>日記記入で報酬<?php e($ktai->emojiByUnicode(0xE715,"#800000"))?></a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php }?>
+<?php //▲日記CP▲ ?>
+
+</td><td align="center" valign="center">
+
+<?php //▼スタートダッシュ▼ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_beginner/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_start.jpg" width="153" ></a><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_beginner/index/"))?>&guid=ON">
+ｽﾀｰﾄﾀﾞｯｼｭｷｬﾝﾍﾟｰﾝ</a><br />
+<?php //▲スタートダッシュ▲ ?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+</td></tr><tr><td align="center" valign="center">
+
+<a href="?url=<?php e(urlencode(SITE_URL."/invite/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_mobatomo.jpg" width="153" ></a><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/invite/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE685,"#FF0000"))?>限定使い魔GET<?php e($ktai->emojiByUnicode(0xE685,"#FF0000"))?></a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+</td><td align="center" valign="center">
+
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_circle/index/"))?>&guid=ON"><img src="<?php e(SITE_URL)?>/sp/image/banner/banner_circle.jpg" width="153" ></a><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_circle/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?>ｻｰｸﾙに入ろう<?php e($ktai->emojiByUnicode(0xE6FA,"#FF8000"))?></a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+</tr></td></table>
+
+<?php if(is_array($mSerialCampaign)) { /* シリアルキャンペーン */ ?>
+<?php foreach ($mSerialCampaign as $value) { ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/cam_serial/index/{$value["id"]}"))?>?guid=ON"><?php e($value["name"]); ?></a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } ?>
+<?php } /* /シリアルキャンペーン/ */ ?>
+
+</div>
+
+<?php //▼新着▼ ?>
+<?php if($newCnt > 0){?>
+<div class="hMain"><a name="news" id="news"></a>新着情報</div>
+
+<div class="listStd">
+<ul>
+<?php if($trade["acceptCount"] > 0){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/trade/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>ﾄﾚｰﾄﾞ返信が来ています</a></li>
+<?php }elseif($trade["applyCount"] > 0){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/trade/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>ﾄﾚｰﾄﾞ申請が届いています</a></li>
+<?php }elseif($trade["count"] > 0){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/trade/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>ﾄﾚｰﾄﾞ処理中が<?php e($trade["count"])?>件あります</a></li>
+<?php }?>
+<?php if($member["stup"] > 0){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/mydata/stup/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>能力ptを<?php e($member["stup"])?>振り分けられます</a></li>
+<?php }?>
+<?php if($presentCount > 0){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/present/inbox_type/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>ｷﾞﾌﾄが<?php e($presentCount)?>件あります!</a></li>
+<?php }?>
+<?php if($member["login_gacha_status"] != GACHA_STATUS_END){?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>無料で召喚ｶﾞﾁｬができます!</a></li>
+<?php }?>
+<?php if ($applyCount > 0) { ?>
+<li><a href="?url=<?php e(urlencode(SITE_URL."/fre/approve_list/"))?>&guid=ON"><?php e($ktai->emojiByUnicode(0xE6FB,"#FF8000"))?>仲間申請が<?php e($applyCount)?>件あります</a></li>
+<?php } ?>
+<?php /*?>
+
+
+
+<?php //使い魔上限表示▼▼▼ ?>
+<?php if ($member["card_num"] >= $member["card_max"]) { ?>
+
+<div style="background:#9B0000;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php e($ktai->emojiByUnicode(0xE737,"#FF9900"))?><span style="color:#ffcc33;" class="blinking">使い魔を上限数所持しています</span><?php e($ktai->emojiByUnicode(0xE737,"#FF9900"))?><br />
+<!--<?php e($member["card_num"])?>枚-->
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+<div style="color:#FFFFFF;">
+これ以上新しい使い魔が受け取れません。<br />
+合成や売却で使い魔を減らしてください。</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<a href="?url=<?php e(urlencode(SITE_URL."/mix/index/"))?>&guid=ON" class="btShort">合成</a><a href="?url=<?php e(urlencode(SITE_URL."/mycard/sell_list/"))?>&guid=ON" class="btShort">売却</a><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+
+<?php }?>
+<?php //使い魔上限表示▲▲▲ ?>
+<?php */?>
+</ul>
+</div>
+
+<?php }?>
+<?php //▲新着▲ ?>
+
+
+<!--おしらせ-->
+<div class="hMain">お知らせ</div>
+
+<div class="listStd">
+<ul>
+<?php if (empty($infoList)) { ?>
+<li>現在お知らせはありません｡</li>
+<?php } else { ?>
+    <?php foreach($infoList as $info) { ?>
+        <li><a href="?url=<?php e(urlencode(SITE_URL."/info/detail/{$info["MInfo"]["id"]}"))?>&guid=ON"><?php e(date("m/d",strtotime($info["MInfo"]["date_from"]))); ?>&nbsp;<?php e($info["MInfo"]["title"])?></a></li>
+    <?php } ?>
+<?php } ?>
+</ul>
+</div>
+<?php if (!empty($infoList)) { ?>
+
+<a class="arwR" href="?url=<?php e(urlencode(SITE_URL."/info/index/"))?>&guid=ON">もっと見る</a>
+
+<?php } ?>
+
+<?php // 仲間の動向?>
+<?php if(!empty($acts)){?>
+<div class="hMain">仲間の動き</div>
+<div class="listStd">
+<ul>
+<?php foreach($acts as $act){?>
+<li>
+<a href="?url=<?php e(urlencode(SITE_URL."/mypage/id/{$act["TMemberAct"]["t_member_id"]}"))?>&guid=ON">
+<?php e($myForm->shortDate($act["TMemberAct"]["modified"], "H:i"))?>&nbsp;<?php e($act["nickname"])?>さん<?php switch ($act["TMemberAct"]["type"]){?>
+<?php case ACT_TYPE_BOSS:?>が<?php e($act["TMemberAct"]["act"])?>のボスを倒しました｡<br />
+    <?php break;?>
+<?php case ACT_TYPE_TRESURE:?>が<?php e($act["TMemberAct"]["act"])?>をコンプリートしました｡<br />
+    <?php break;?>
+<?php case ACT_TYPE_WISH:?>が<?php e($act["TMemberAct"]["act"])?>を欲しいものに追加しました｡	<br />
+    <?php break;?>
+<?php case ACT_TYPE_KBOSS:?>が<?php e($act["TMemberAct"]["act"])?>に遭遇しました｡<br />
+    <?php break;?>
+<?php }?>
+</a>
+</li>
+<?php }?>
+</ul>
+</div>
+
+<a class="arwR" href="?url=<?php e(urlencode(SITE_URL."/act/index/"))?>&guid=ON">もっと見る</a>
+
+
+<?php }?>
+
+<?php // 挨拶履歴?>
+<?php if(!empty($tContactHistories)){?>
+<div class="hMain">挨拶履歴</div>
+
+<?php foreach($tContactHistories as $tContactHistory){?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+<table cellspacing="0" cellpadding="0" width="100%"><tr>
+<td  width="50" align="center" valign="top">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+<?php e($myForm->cardImage($tContactHistory["MCard"]["id"], SIZETYPE_S)); ?>
+
+</td><td valign="top" align="left"><span>
+
+<?php e($myForm->attrTagS($tContactHistory["MCard"]["attribute"]))?> <a href="?url=<?php e(urlencode(SITE_URL."/mypage/id/{$tContactHistory["t_member_id_from"]}/"))?>&guid=ON"><?php e($tContactHistory["from_name"])?></a>(<?php e($myForm->shortDate($tContactHistory["modified"], "H:i"))?>)<br />
+
+<?php if(!empty($tContactHistory["text"])){?>
+｢<?php e(h($tContactHistory["text"]))?>｣<br />
+<?php }else{ ?>
+<span style="color:#525252;">挨拶された!</span><br />
+<?php }?>
+
+</span></td></tr></table>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+<hr style="border:none;border-top:dashed 1px #666666;height:1px;width:100%;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+
+<div align="right">
+<a href="?url=<?php e(urlencode(SITE_URL."/contact/contact/{$tContactHistory["t_member_id_from"]}/"))?>&guid=ON" class="stbtn btShort"><?php e(CONTACT)?></a>
+<a href="?url=<?php e(urlencode(SITE_URL."/contact/del/{$tContactHistory["id"]}/"))?>&guid=ON" class="stbtn btShort">削除</a>
+
+</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+
+<div style="text-align:center; margin:0; padding:0; background:#A80008;"><img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="1"></div>
+
+<?php }?>
+
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+<a class="arwR" href="?url=<?php e(urlencode(SITE_URL."/contact/history/"))?>&guid=ON">もっと見る</a>
+
+
+<?php }?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="4"><br />
+
+<!--ﾒﾆｭｰ-->
+<div style="background:#380808; text-align:center;">
+<div class="hMain">メニュー</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="8" /><br />
+<ul class="fNav"><li><a href="?url=<?php e(urlencode(SITE_URL."/shop/item_list/"))?>&guid=ON">ショップ</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/mis/mis_map/"))?>&guid=ON">任務一覧</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/gacha/index/"))?>&guid=ON">召喚ｶﾞﾁｬ</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/wish/index/"))?>&guid=ON">欲しいﾓﾉ</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/treasure/index/"))?>&guid=ON">魔具</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/fre/fre_list/"))?>&guid=ON">仲間</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/title/title_list/"))?>&guid=ON">称号</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/mycard/index/"))?>&guid=ON">使 い 魔</a></li><?php if($member["lv"] >= RAID_BOARD_LV){ ?><li><a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/board/"))?>&guid=ON">共闘ｸｴｽﾄ</a></li><?php } ?><li><a href="?url=<?php e(urlencode(SITE_URL."/storage/index/"))?>&guid=ON">使い魔BOX</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/colle/card_list/"))?>&guid=ON">図鑑</a></li><li><a href="?url=<?php e(urlencode(SITE_URL."/help/index/"))?>&guid=ON">ﾍﾙﾌﾟ･FAQ</a></li></ul>
+<img src="http://ava-a.mbga.jp/i/dot.gif" width="4" height="4" /><br />
+</div>
+
+<div style="background:#380808; text-align:center;">
+<div class="hMain">自己紹介用ﾀｸﾞ</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td align="left">
+ｽﾏｰﾄﾌｫﾝ用:
+</td>
+<td align="left">
+<form action="" method="post">
+<input type="text" value="<?php e(h($spMyPageLinkTag));?>" size="10" />
+</form>
+</td>
+</tr>
+<tr>
+<td align="left">
+ﾌｨｰﾁｬｰﾌｫﾝ用:
+</td>
+<td align="left">
+<form action="" method="post">
+<input type="text" value="<?php e(h($mbMyPageLinkTag));?>" size="10" />
+</form>
+</td>
+</tr>
+</table>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<img src="<?php e(SITE_URL)?>/sp/image/com/border_std01.gif" width="100%"><br />
+</div>
+
+
+<a class="help" href="?url=<?php e(urlencode(SITE_URL."/help/index/"))?>&guid=ON">ﾍﾙﾌﾟ･FAQ</a>

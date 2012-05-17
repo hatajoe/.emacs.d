@@ -1,0 +1,32 @@
+<?php
+/**
+ * 称号マスタ
+ *
+ * @author hikashi
+ */
+class MTitle extends AppModel {
+
+    var $name = "MTitle";
+
+    
+    /*
+     * 称号をリストで返す
+     *
+     * @return 
+     */
+    public function getTitleList() {
+    
+        $conditions = array();
+        $conditions["del_flg"]     = FLG_OFF;
+        
+        $fields = array();
+        $fields[] = "id";
+        $fields[] = "name";
+        
+        $res = $this->find("list", array("conditions" => $conditions, "fields" => $fields));
+        debug($res);
+        return $res;
+    }
+
+
+}

@@ -1,0 +1,257 @@
+<div style="background:#4D0500;">
+<div style="background:#620000;">
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td width="45" valign="bottom" style="vertical-align:bottom;"><img src="<?php e(SITE_URL); ?>/image/com/othery_l.gif" width="45" height="15"></td>
+<td align="center" style="text-align:center;"><span style="font-size:x-small;">
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+
+<?php e($myForm->attrIcon($member["attribute"]))?> <?php e($myForm->attrTag($member["attribute"]))?><?php if(!empty($member["title"])){e("&nbsp;".$member["title"]."&nbsp;");} ?><?php if(!empty($member["profileUrl"])){?><?php e( $myForm->anchorTag($member["profileUrl"]) );?><br /><?php e($member["name"]); ?>
+<?php } else {?>
+<?php e($member["name"]); ?><?php }?>
+</span><br />
+</td>
+<td width="45" valign="bottom" style="vertical-align:bottom;"><img src="<?php e(SITE_URL); ?>/image/com/othery_r.gif" width="45" height="15"></td>
+</tr>
+<tr><td colspan="3"><img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%">
+</td></tr>
+</table>
+</div>
+
+<?php if(!empty($highStatusCards[3]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[3]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[1]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[1]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php /*リーダーカード*/?>
+<?php e($myForm->cardImage($leaderCard["MCard"]["id"], SIZETYPE_BUP)); ?>
+<?php if(!empty($highStatusCards[2]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[2]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[4]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[4]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<br />
+<?php if(!empty($highStatusCards[8]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[8]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[6]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[6]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[5]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[5]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[7]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[7]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<?php if(!empty($highStatusCards[9]["m_card_id"])){?>
+<?php e($myForm->cardImage($highStatusCards[9]["m_card_id"], SIZETYPE_BUP)); ?>
+<?php }else{?>
+<?php e($myForm->cardImage(0, SIZETYPE_BUP)); ?>
+<?php }?>
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td width="50%" align="left" valign="top"><span style="font-size:x-small;">
+<span style="color:#ba987a;">Lv.　 </span>:<?php e($member["lv"])?><br />
+<span style="color:#ba987a;">仲　間</span>:<?php e($member["friend_num"])?>人<br />
+<span style="color:#ba987a;">エリア</span>:<?php e($tMemberStage["m_stage_id"])?><br />
+</span></td>
+<td width="50%" align="left" valign="top"><span style="font-size:x-small;">
+<span style="color:#ba987a;">使い魔</span>:<?php e($member["card_num"])?>体<br />
+<span style="color:#ba987a;">図　鑑</span>:<?php if($collectionOpen){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/colle/card_list?mem={$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($member["collection_num"])?></span></a>種 公開中<br />
+<?php } else { ?>
+<?php e($member["collection_num"])?>種<br />
+<?php } ?>
+<span style="color:#ba987a;">魔　具</span>:<a href="?url=<?php e(urlencode(SITE_URL."/treasure/index?mem={$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($seriesNum); ?></span></a>
+</span></td>
+</tr>
+</table>
+<?php if($storageCnt > 0){ ?>
+<span style="color:#ba987a;">使い魔BOX</span>:<a href="?url=<?php e(urlencode(SITE_URL."/storage/index/{$member["id"]}"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($storageCnt)?>使い魔BOX</span></a><br />
+<?php } ?>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+</div>
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+<div style="background:#1F2424;">
+
+<?php if(!empty($profileText)){?>
+<?php e($profileText)?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<div style="text-align:right;" align="right">(<?php e(date("n/j",strtotime($member["comment_modified"])))?>更新)</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php }else{?>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+よろしくおねがいします!<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php }?>
+
+</div>
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr>
+<td width="50%"><a href="?url=<?php e(urlencode(SITE_URL."/contact/contact/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_a.gif"   /></a></td><td width="50%"><a href="?url=<?php e(urlencode(SITE_URL."/present/card_list/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_g.gif"  /></a><br /></td>
+</tr>
+<tr>
+<td ><?php if(!$isFriend){ ?>
+        <?php if($isApply){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/fre/apply_cancel/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_n4.gif" /></a><br />
+        <?php } else if($isApplied){ ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/fre/approve/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_n3.gif"/></a><br />
+        <?php } else { ?>
+<a href="?url=<?php e(urlencode(SITE_URL."/fre/apply/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_n5.gif" /></a><br />
+        <?php } ?>
+    <?php }else{?>
+<a href="?url=<?php e(urlencode(SITE_URL."/fre/cancel_confirm/{$member["id"]}/"))?>&guid=ON"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_n2.gif" /></a><br />
+    <?php } ?>
+
+</td><td width="50%">
+
+        <?php if(!$tradeEnable && ($memberTrade["from_to"] == 0)){?>
+            <a href="?url=<?php e(urlencode(SITE_URL."/trade/limit_list/{$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_s2.gif" /></span></a>
+        <?php }elseif(!$tradeEnable && ($memberTrade["from_to"] == 1)){?>
+            <img src="<?php e(SITE_URL); ?>/image/button/button_pro_s3.gif" />
+        <?php }else{?>
+            <?php if($tradeEnableTo && ($memberTradeTo["from_to"] == 0) && ($memberTradeTo["status"] === TRADE_STATUS_SELECT)){?>
+                <img src="<?php e(SITE_URL); ?>/image/button/button_pro_s4.gif" />
+            <?php }elseif(($memberTrade["status"] === TRADE_STATUS_SELECT) && ($memberTrade["from_to"] == 0)){?>
+                <a href="?url=<?php e(urlencode(SITE_URL."/trade/card_list/{$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_s1.gif" /></span></a>
+            <?php }elseif(($memberTrade["status"] === TRADE_STATUS_APPLY) && ($memberTrade["from_to"] == 0)){?>
+                <img src="<?php e(SITE_URL); ?>/image/button/button_pro_s5.gif"  />
+            <?php }elseif(($memberTrade["status"] === TRADE_STATUS_ACCEPT) && ($memberTrade["from_to"] == 0)){?>
+                <a href="?url=<?php e(urlencode(SITE_URL."/trade/conf/{$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_s6.gif" /></span></a>
+            <?php }elseif(($memberTrade["status"] === TRADE_STATUS_APPLY) && ($memberTrade["from_to"] == 1)){?>
+                <a href="?url=<?php e(urlencode(SITE_URL."/trade/trade_list/{$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_s7.gif"  /></span></a>
+            <?php }elseif(($memberTrade["status"] === TRADE_STATUS_ACCEPT) && ($memberTrade["from_to"] == 1)){?>
+                <img src="<?php e(SITE_URL); ?>/image/button/button_pro_s8.gif" />
+
+            <?php }else{?>
+                <a href="?url=<?php e(urlencode(SITE_URL."/trade/card_list/{$member["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><img src="<?php e(SITE_URL); ?>/image/button/button_pro_s1.gif" /></span></a>
+            <?php }?>
+        <?php }?>
+
+
+</td></tr></table>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+
+<div style="background:#4D0500;">
+<img src="<?php e(SITE_URL); ?>/image/com/leader.gif" width="100%">
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<table cellspacing="0" cellpadding="0" width="100%"><tr><td width="70" align="left" valign="middle"><?php e($myForm->cardImage($leaderCard["MCard"]["id"], SIZETYPE_M_ANI)); ?><br /></td><td align="left" valign="top"><span style="font-size:x-small;"><span style="color:#ffffff;"><?php e($myForm->attrTagS($leaderCard["MCard"]["attribute"]))?><?php e($leaderCard["MCard"]["name"])?>(<span style="color:#FFFF33;"><?php e($myForm->cardRare($leaderCard["MCard"]["rare"]))?></span>)<br />
+<span style="color:#ba987a;">Lv. </span><?php e($leaderCard["TMemberCard"]["lv"])?>
+ <span style="color:#ba987a;">ｺｽﾄ </span><?php e($leaderCard["MCard"]["cost"])?><br />
+<span style="color:#ba987a;">攻撃 </span><?php e($leaderCard["TMemberCard"]["atk"])?> <span style="color:#ba987a;">防御 </span><?php e($leaderCard["TMemberCard"]["def"])?><br />
+<span style="color:#ba987a;">成長度 </span><?php e($myForm->cardExpGageImage($leaderCard["TMemberCard"]["lv"], $leaderCard["MCard"]["lv"], $leaderCard["TMemberCard"]["exp"], $MixConfig, "s")); ?><br />
+
+<?php if(!empty($leaderCard["MSkill"]["name"])){?>
+<span style="color:#FFB6CB;"><?php e($leaderCard["MSkill"]["name"])?>★<?php e($leaderCard["TMemberCard"]["skill_lv"])?></span><br />
+<span style="font-size:xx-small;color:#E95985;"><?php e(nl2br($leaderCard["MSkill"]["description"]))?></span><br />
+    <?php }?>
+</span></span>
+</td></tr></table>
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div style="text-align:right;font-size:x-small;">⇒<a href="?url=<?php e(urlencode(SITE_URL."/wish/add/".WANTED_TYPE_CARD."/".$leaderCard["MCard"]["id"]))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">欲しいﾓﾉに登録</span></a></div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<?php if(!empty($wishList)){ ?>
+<div style="background:#230605;">
+<div align="center" style="text-align:center;background-color:#620F08;color:#FFFFFF;"><img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%" height="3"><br />欲しいﾓﾉﾘｽﾄ<br /><img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br /></div><img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+    <?php
+    foreach($wishList as $item){
+        if($item["type"] == WANTED_TYPE_CARD){
+            e($myForm->cardImage($item["MCard"]["id"], SIZETYPE_S));
+        } else if($item["type"] == WANTED_TYPE_TRE){
+            e($myForm->treasureImage($item["MTreasure"]["m_series_id"], $item["MTreasure"]["sort"], SIZETYPE_S));
+        }
+    }
+    ?>
+
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+</div>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div align="right" style="text-align:right;">⇒<a href="?url=<?php e(urlencode(SITE_URL."/wish/index/{$member["id"]}"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">確認する</span></a></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } ?>
+
+<div style="background-color:#230605;">
+<div align="center" style="text-align:center;background-color:#620F08;color:#FFFFFF;"><img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%" height="3"><br />挨拶履歴<br /><img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br /></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<?php if(!empty($tContactHistories)){?>
+<?php foreach($tContactHistories as $tContactHistory){?>
+<table cellspacing="0" cellpadding="0" width="100%">
+<tr><td width="35" height="40" align="center" valign="top">
+<img src="<?php e($avatarUrls[$tContactHistory["t_member_id"]])?>" width="30" height="40"/>
+</td><td width="40" align="left" valign="top"><?php e($myForm->cardImage($tContactHistory["MCard"]["id"], SIZETYPE_S_ANI)); ?>
+</td>
+<td align="left" valign="top"><span style="font-size:x-small;">
+<a href="?url=<?php e(urlencode(SITE_URL."/mypage/id/{$tContactHistory["t_member_id_from"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($tContactHistory["from_name"])?></span></a>(<?php e($myForm->shortDate($tContactHistory["modified"]))?>)<br />
+<?php if(!empty($tContactHistory["text"])){?>
+        ｢<?php e($tContactHistory["text"])?>｣<br />
+    <?php }else{ ?>
+<span style="color:#525252;">挨拶された!</span><br />
+    <?php }?>
+   <?php if($tContactHistory["t_member_id_from"] != $myMemberId){?>
+    [<a href="?url=<?php e(urlencode(SITE_URL."/contact/contact/{$tContactHistory["t_member_id_from"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e(CONTACT)?></span></a>]
+   <?php }?>
+   <?php if($tContactHistory["t_member_id_from"] == $myMemberId){?>
+<div align="right" style="text-align:right;">
+⇒<a href="?url=<?php e(urlencode(SITE_URL."/contact/del/{$tContactHistory["id"]}/{$tContactHistory["t_member_id_to"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">削除</span></a>
+</div>
+    <?php }?>
+    </span>
+</td></tr>
+</table>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php }?>
+<div align="right" style="text-align:right;">⇒<a href="?url=<?php e(urlencode(SITE_URL."/contact/history_id/{$tContactHistory["t_member_id_to"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">もっと見る</span></a></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+
+
+
+<?php }else{?>
+挨拶記録はありません<br />
+<?php }?>
+<img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%" height="3"><br /></div>
+
+

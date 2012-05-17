@@ -1,0 +1,159 @@
+<div align="center" style="text-align:center;background-color:#620F08;color:#FFFFFF;"><img src="<?php e(SITE_URL); ?>/image/com/othery_border.gif" width="100%" height="3"><br />共闘ｸｴｽﾄ<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br /></div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<div align="left" style="text-align:left;">
+<span style="color:#FFCC33;">蝕の魔獣</span>を討伐し<span style="color:#FFCC33;">報酬</span>を貰おう<br />
+</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<?php if(empty($boardData)){ ?>
+
+<?php // ▼ナビゲーション▼ ?>
+<div align="left" style="text-align:left;background-color:#1E3429;">
+<img src="<?php e(SITE_URL); ?>/image/com/win1.gif" width="100%" height="10" /><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<img src="<?php e(SITE_URL); ?>/image/nav/nav_001_01.gif" width="60" height="70" style="float:left;padding:0 2px 2px 0" align="left" />
+蝕の魔獣をたくさん討伐すると<span style="color:#FFCC33;">｢称号｣を獲得</span>できます｡<br /><span style="color:#FFCC33;">｢共闘ｸｴｽﾄ｣に挑戦</span>してどんどん蝕の魔獣を倒しましょう!<br />
+
+<div style="clear:both;" clear="all"></div>
+<img src="<?php e(SITE_URL); ?>/image/com/win2.gif" width="100%" height="10" /><br />
+</div>
+<?php // ▲ナビゲーション▲ ?>
+<?php } ?>
+
+<?php /* ?>
+<!-- 
+<?php e($myForm->create("", array("type" => "POST", "url" => "/kboss_info/board/"))); ?>
+<?php e($myForm->input("s", array("type" => "select", "options" => $sort, "div" => false, "label" => false)));?>
+<?php e($myForm->submit("並び替え", array("div"=>false)));?>
+<?php e($myForm->end()); ?>
+ -->
+<?php */ ?>
+
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<?php if(empty($list)){ ?>
+<div style="background:#4D0500;">
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<span style="color:#ff4142;">×参加出来る蝕がありません×</span><br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } else { ?>
+
+<?php foreach($list as $key => $rescue){ ?>
+<div align="left" style="text-align:left;background:#4D0500;">
+<div align="center" style="text-align:center;background:#8F0808;color:#FFFFFF;">
+<img src="<?php e(SITE_URL); ?>/image/com/gacha/border_g_head.gif" width="100%" height="6" /><br />
+
+<!--<?php e($rescue["TMemberKbossBattle"]["start"]); ?>-->
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="2"><br />
+
+共闘ｸｴｽﾄ<?php if(!empty($rescue["title"])){e("&nbsp;".$rescue["title"]."&nbsp;");} ?><a href="?url=<?php e(urlencode(SITE_URL."/mypage/id/{$rescue["TMemberKbossBattle"]["t_member_id"]}"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($rescue["name"]); ?></span></a>編<br />
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<div style="background:#cc0808;"><img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="1"></div>
+</div>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td align="left" valign="top"><span style="font-size:x-small;">
+<span style="color:#ffffff;"><?php e($rescue["MKboss"]["name"])?></span>&nbsp;<span style="color:#bd9671;">Lv.<span style="color:#ffffff;"><?php e($rescue["MKboss"]["lv"])?></span><br /></span>
+<?php e($ktai->emojiByUnicode(0xE6BA,"#FFFFFF"))?>残り<span style="color:#ffcc33; text-decoration:blink;"><?php e($myForm->getTime($rescue["TMemberKbossBattle"]["limit"])); ?></span><br />
+<span style="color:#bd9671;">HP</span><span style="color:#ffffff;"><?php e($rescue["TMemberKbossBattle"]["hp_now"])?>/<?php e($rescue["MKboss"]["hp"])?></span>
+<!--<span style="color:#bd9671;">ｺｱ耐久</span><span style="color:#ffffff;"><?php e($rescue["TMemberKbossBattle"]["hp_parts_now"])?>/<?php e($rescue["MKboss"]["parts_hp"])?></span><br />-->
+</td><td align="center" valign="top" style="text-align:center;" width="70"><span style="font-size:x-small;">
+討伐報酬<br />
+
+<?php if(!empty($rescue["MTreasure"])){ ?>
+<?php e($myForm->treasureImage($rescue["MTreasure"]["m_series_id"], $rescue["MTreasure"]["sort"], SIZETYPE_S)); ?><br />
+<?php } ?>
+
+</td></tr></table>
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+
+<div style="background:#8F0808;">
+<div style="background:#cc0808;"><img src="http://ava-a.mbga.jp/i/dot.gif" width="1" height="1"></div>
+
+<table cellspacing="0" cellpadding="0" width="100%"><tr><td width="90" align="center" valign="top"><span style="font-size:x-small;"><img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+<span style="color:#E1D6B0;">
+[<a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/{$rescue["TMemberKbossBattle"]["id"]}/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($rescue["TMemberKbossBattle"]["count"]); ?>人参加可能</span></a>]<br /></span>
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="4"><br />
+</td></tr></table>
+
+<img src="<?php e(SITE_URL); ?>/image/com/gacha/border_g_foot.gif" width="100%" height="6" /><br />
+</div></div>
+
+
+<img src="http://ava-a.mbga.jp/i/dot.gif" alt="spacer" width="1" height="8"><br />
+<?php } ?>
+<?php } ?>
+
+
+<div align="left" style="text-align:left;">
+<?php e($ktai->emojiByUnicode(0xE697,"#FFFFFF"))?><a href="?url=<?php e(urlencode(SITE_URL."//mypage/index/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">救世院へ</span></a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php /*
+
+<div align="left" style="text-align:left;">
+<?php e($ktai->emojiByUnicode(0xE697,"#FFFFFF"))?><a href="?url=<?php e(urlencode(SITE_URL."/kboss_info/index/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">蝕の魔獣TOPへ</span></a>
+</div>
+
+<div align="right" style="text-align:right;">
+⇒<a href="?url=<?php e(urlencode(SITE_URL."/help/detail/19/"))?>&guid=ON"><span style="color:<?php e(LINK_MAIN_COLOR)?>;">共闘ｸｴｽﾄとは?</span></a><br />
+
+</div>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" style="text-align:left;" width="40%">
+
+<?php if(!empty($rescue["MTreasure"])){ ?>
+<?php e($myForm->treasureImage($rescue["MTreasure"]["id"], $rescue["MTreasure"]["sort"], SIZETYPE_S)); ?><br />
+
+
+<?php } ?>
+
+</span></td>
+<td align="left" style="text-align:left;" width="60%"><span style="font-size:x-small;color:#FFFFFF;">
+
+<?php e(empty($rescue["TMemberKbossBattle"]["incentive_pt"]) ? 0 : $rescue["TMemberKbossBattle"]["incentive_pt"]); ?><span style="color:#99FF00;">θ</span><br />
+<span style="color:#ffffff;"><?php e(empty($rescue["TMemberKbossBattle"]["incentive_con_pt"]) ? 0 : $rescue["TMemberKbossBattle"]["incentive_con_pt"]); ?></span><span style="color:#ffcc33;">絆pt</span><br />
+
+<?php if(!empty($rescue["MCard"])){ ?>
+<span style="color:#ffffff;"><?php e($rescue["MCard"]["name"])?>(<span style="color:#FFFF33;"><?php e($myForm->cardRare($rescue["MCard"]["rare"]))?></span>)</span><br />
+<?php } ?>
+
+</span></td>
+</tr>
+</table>
+
+<img src="<?php e(SITE_URL)?>/image/com/border_std01.gif" alt="border" width="100%" height="1"><br />
+</div>
+
+
+[<?php if($key == 0){ e($ktai->emojiByUnicode(0xE6E6,"#FFFFFF")); } ?><a href="?url=<?php e(urlencode(SITE_URL."/kboss/top/{$rescue["TMemberKbossBattle"]["id"]}/"))?>&guid=ON"<?php if($key == 0){?> accesskey="5"<?php } ?>><span style="color:<?php e(LINK_MAIN_COLOR)?>;"><?php e($rescue["TMemberKbossBattle"]["count"]); ?>人参加可能</span></a><?php if($key == 0){ e($ktai->emojiByUnicode(0xE6E6,"#FFFFFF")); } ?>]
+
+*/?>

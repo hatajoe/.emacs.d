@@ -1,0 +1,995 @@
+<?php
+/**
+ * 拡張フォームヘルパークラス
+ *
+ * @author onishi
+ */
+class MyFormHelper extends FormHelper {
+
+     var $view = null;
+     var $carrier = "";
+
+     function __construct() {
+        parent::__construct();
+        $this->view =& ClassRegistry::getObject('view');
+    }
+
+    /**
+     * 制限時間を取得する
+     *
+     * @param  $s 秒
+     * @return H:i:s
+     */
+    public function getLimitTime($s) {
+
+        $time = gmdate("H:i:s", $s);
+
+        return $time;
+    }
+
+    /**
+     * 制限時間を取得する
+     *
+     * @param  $s 秒
+     * @return H:i:s
+     */
+    public function getLimitTime2($date) {
+
+        $now = time();
+
+        //mktime (時, 分, 秒, 月, 日, 年, サマータイム);
+        $limit = mktime(substr($date, 11, 2), substr($date, 14, 2), substr($date, 17, 2),
+                        substr($date,  5, 2), substr($date,  8, 2), substr($date,  0, 4));
+
+
+        $second = $limit - $now;
+
+        if ($second <= 0) {
+
+            return 0;
+
+        } else {
+
+            return $this->getTime($limit - $now);
+        }
+    }
+
+    /**
+     * 回復までの時間を取得する
+     *
+     * @param  $s 秒
+     * @return H時間i分s秒
+     */
+    public function getTime($s) {
+
+        if ($s < 60) {
+
+            return $s . "秒";
+        }
+
+        if ($s < 3600) {
+
+            $time = (int)gmdate("i", $s) . "分" . (int)gmdate("s", $s) . "秒";
+
+            return $time;
+        }
+
+        if ($s < 86400) {
+
+            $time = (int)gmdate("H", $s) . "時間" . (int)gmdate("i", $s) . "分";
+
+            return $time;
+        }
+
+        $time = (int)gmdate("z", $s) . "日と" . (int)gmdate("H", $s) . "時間";
+
+        return $time;
+    }
+
+    /**
+     * アンカータグを吐き出す
+     *
+     * @param $target
+     * @param $label
+     */
+    function anchorLink($target, $label) {
+        return "<a href=\"#{$target}\"><span style=\"color: " . LINK_MAIN_COLOR . "\">{$label}</span></a>";
+    }
+
+    /**
+     * アンカータグを吐き出す
+     *
+     * @param $target
+     * @param $label
+     */
+    function anchorTag($target, $label) {
+        return '<a href="'.$target.'"><span style="color: '. LINK_MAIN_COLOR . '">'.$label.'</span></a>';
+    }
+
+    /**
+     * オブジェクトタグを吐き出す
+     *
+     * @param $imagePath        イメージパス
+     * @param $displaySizeType  ディスプレイサイズタイプ
+     * @param $options          オプション
+     * @return オブジェクトタグ
+     */
+    function objectTag($path, $displaySizeType = DISPLAY_QVGA, $options = array()) {
+
+        if (isset($options["width"]) && $options["width"] != "" &&
+            isset($options["height"]) && $options["height"] != "") {
+            if ($displaySizeType == DISPLAY_VGA) {
+                $options["width"]  = $options["width"] * 2;
+                $options["height"] = $options["height"] * 2;
+            }
+        }
+//        if ($displaySizeType == DISPLAY_QVGA) {
+//            $path = str_replace("DISPLAY_SIZE", "qvga", $path);
+//        } else if ($displaySizeType == DISPLAY_VGA) {
+//            $path = str_replace("DISPLAY_SIZE", "vga", $path);
+//        }
+        //mbga用
+        $path = "?url=".urlencode(SITE_URL.$path);
+
+        $objectTag  = "<object data=\"{$path}\"  type=\"application/x-shockwave-flash\" width=\"{$options["width"]}\" height=\"{$options["height"]}\">";
+        $objectTag .= "<param name=\"loop\" value=\"on\">";
+        $objectTag .= "<param name=\"quality\" value=\"high\">";
+        $objectTag .= "</object>";
+        return $objectTag;
+    }
+
+    /**
+     * カード画像を出力する
+     *
+     * @param $mstCardId		カードID
+     * @param $size				サイズ
+     * @param $name				名前
+     * @param $displaySizeType	ディスプレイサイズタイプ
+     */
+//    function cardImage($mCardId, $size, $option = "", $displaySizeType = "") {
+    function cardImage($mCardId, $sizeType, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES");
+        }
+
+        if(empty($mCardId)){
+
+            $imageName = "no".$sizeType;
+
+        }else{
+
+//            if(substr($sizeType,2) != "ani"){
+                $imageName = $sizeType.sprintf("%04d", $mCardId);
+//            } else {
+//                $imageName = substr($sizeType,0,1).sprintf("%04d", $mCardId);
+//            }
+
+        }
+
+        if(empty($option["width"]) && empty($option["height"])){
+            $option["width"]  = $sizeTypes[$sizeType]["width"];
+            $option["height"] = $sizeTypes[$sizeType]["height"];
+        }
+        if(isset($sizeTypes[$sizeType]["jpg"]) && ($sizeTypes[$sizeType]["jpg"] == FLG_ON)){
+            $ext = ".jpg";
+        }else{
+            $ext = ".gif";
+        }
+        return $this->image($dir . "image/card/" . $sizeType ."/" . $imageName . $ext, $displaySizeType, $option);
+    }
+
+    /**
+     * カードブランク画像を出力する
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+//    function cardBlankImage($size, $name = "", $displaySizeType = "") {
+    function cardBlankImage($sizeType, $attribute = 0, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES");
+        }
+
+        switch($attribute){
+            case ATTRIBUTE_1:
+                $imageName = "race" . $sizeType . "_" . ATTRIBUTE_1_F_NAME;
+                break;
+            case ATTRIBUTE_2:
+                $imageName = "race" . $sizeType . "_" . ATTRIBUTE_2_F_NAME;
+                break;
+            case ATTRIBUTE_3:
+                $imageName = "race" . $sizeType . "_" . ATTRIBUTE_3_F_NAME;
+                break;
+            case ATTRIBUTE_4:
+                $imageName = "race" . $sizeType . "_" . ATTRIBUTE_4_F_NAME;
+                break;
+            case ATTRIBUTE_5:
+                $imageName = "race" . $sizeType . "_" . ATTRIBUTE_5_F_NAME;
+                break;
+            default:
+                $imageName = "no" . $sizeType;
+        }
+
+        if(empty($option["width"]) && empty($option["height"])){
+            $option["width"]  = $sizeTypes[$sizeType]["width"];
+            $option["height"] = $sizeTypes[$sizeType]["height"];
+        }
+
+        return $this->image($dir . "image/card/" . $sizeType . "/" . $imageName . ".gif", $displaySizeType, $option);
+    }
+
+    /**
+     * カードブランク画像を出力する
+     * ハテナなし
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function cardBlankNoneImage($size, $name = "", $displaySizeType = "") {
+    //    return $this->image("/img/card/" . $size . "/blank_none" . ".gif", $displaySizeType, array("alt" => $name));
+    //}
+
+
+    /**
+     * アイテム画像を出力する
+     *
+     * @param $mstItemId	アイテムID
+     * @param $size			サイズ
+     * @param $name			名前
+     * @param $displaySizeType	ディスプレイサイズタイプ
+     */
+    function itemImage($mItemId, $size, $name = "", $displaySizeType = "") {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_ITEM_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES_ITEM");
+        }
+
+        $imageName = $size.sprintf("%03d", $mItemId);
+
+        $option["width"]  = $sizeTypes[$size]["width"];
+        $option["height"] = $sizeTypes[$size]["height"];
+        $option["alt"] = $name;
+
+        return $this->image($dir . "image/item/" . $size . "/" . $imageName . ".gif", $displaySizeType, $option);
+    }
+
+    /*
+     * 資金の画像を表示する
+     *
+     * @param $point		ポイント
+     * @param $size			サイズ
+     * @param $name			名前
+     * @param $displaySizeType	ディスプレイサイズタイプ
+     */
+    function pointImage($point, $size, $name = "", $displaySizeType = "") {
+
+        if( ($point > 0) && ($point < 1000) ){
+
+            $id = 1;
+
+        }elseif( ($point >= 1000) && ($point < 10000) ){
+
+            $id = 2;
+
+        }elseif( $point >= 1000 ){
+
+            $id = 3;
+
+        }
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_ITEM_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES_ITEM");
+        }
+
+        $imageName = $size.sprintf("%03d", $id);
+
+        $option["width"]  = $sizeTypes[$size]["width"];
+        $option["height"] = $sizeTypes[$size]["height"];
+        $option["alt"] = $name;
+
+        return $this->image($dir . "image/gift/" . $size . "/" . $imageName . ".gif", $displaySizeType, $option);
+
+        return;
+
+    }
+
+
+
+    /**
+     * シリーズ画像を出力する
+     * @param $mstSeriesId
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function seriesImage($mstSeriesId, $type = "icon", $name = "", $options = array(), $displaySizeType = "") {
+    function seriesImage($sizeType, $mSeriesId, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE");
+        }
+
+        $id = sprintf("%02d", $mSeriesId);
+
+        $imageName = $sizeType.$id;
+
+        if(empty($option["width"]) && empty($option["height"])){
+            $option["width"]  = $sizeTypes[$sizeType]["width"];
+            $option["height"] = $sizeTypes[$sizeType]["height"];
+        }
+
+        return $this->image($dir . "image/parts/" . $sizeType . "/" . $id . "/" . $imageName . ".gif", $displaySizeType, $option);
+    }
+
+    /**
+     * トレジャー画像を出力する
+     * @param $mstTreasureId
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function treasureImage($mstTreasureId, $size, $name = "", $displaySizeType = "") {
+    function treasureImage($mSeriesId, $mTreasureNo, $sizeType, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE");
+        }
+
+        $seriesNo = sprintf("%02d", $mSeriesId);
+
+        $imageName = $sizeType.$seriesNo."_".$mTreasureNo;
+
+        if(empty($option["width"]) && empty($option["height"])){
+            $option["width"]  = $sizeTypes[$sizeType]["width"];
+            $option["height"] = $sizeTypes[$sizeType]["height"];
+        }
+
+
+        return $this->image($dir . "image/parts/" . $sizeType ."/" . $seriesNo ."/" . $imageName . ".gif", $displaySizeType, $option);
+
+    }
+
+    /**
+     * トレジャーアイコンを出力する
+     * @param $sort
+     */
+    function treasureIcon($sort=0, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+        } else {
+            $dir = "/";
+        }
+
+        return $this->image($dir . "image/parts/icon/icon_" . $sort . ".gif", $displaySizeType, $option);
+
+    }
+
+    /**
+     * トレジャーブランク画像を出力する
+     * @param $sort
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function treasureBlankImage($sort, $size, $name = "", $displaySizeType = "") {
+    function treasureBlankImage($sizeType, $colle = false, $option = "", $displaySizeType = DISPLAY_QVGA) {
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE_SP");
+        } else {
+            $dir = "/";
+            $sizeTypes = Configure::read("SIZE_TYPES_TREASURE");
+        }
+
+        // コレクション表示
+        if( $colle ){
+
+            $imageName = "no" . $sizeType;
+
+            if(empty($option["width"]) && empty($option["height"])){
+                $option["width"]  = $sizeTypes[$sizeType]["width"];
+                $option["height"] = $sizeTypes[$sizeType]["height"];
+            }
+
+            return $this->image($dir . "image/parts/" . $sizeType ."/" . $imageName . ".gif", $displaySizeType, $option);
+        // ドロップ表示
+        } else {
+            //$imageName = "cardss_parts";
+            $imageName = "drop_no";
+
+            if(empty($option["width"]) && empty($option["height"])){
+                $option["width"]  = $sizeTypes[$sizeType]["width"];
+                $option["height"] = $sizeTypes[$sizeType]["height"];
+            }
+
+            //return $this->image("/image/parts/" . $imageName . ".gif", $displaySizeType, $option);
+            return $this->image($dir . "image/com/" . $imageName . ".gif", $displaySizeType, $option);
+        }
+
+
+    }
+
+    /**
+     * ボス画像を出力する
+     *
+     * @param $mstBossId
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function bossImage($mstBossId, $size, $name = "", $displaySizeType = "") {
+    //    $imageName = sprintf("%03d", $mstBossId);
+    //    return $this->image("/img/boss/" . $size . "/" . $imageName . ".gif", $displaySizeType, array("alt" => $name));
+    //}
+
+    /**
+     * 属性画像を出力する
+     *
+     * @param $attribute
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    //function attrImage($attribute, $size, $name = "", $displaySizeType = "") {
+    //    return $this->image("/img/attr/" . $size . "/" . $attribute . ".gif", $displaySizeType, array("alt" => $name));
+    //}
+
+    /**
+     * 属性画像を出力する
+     *
+     * @param $attribute
+     * @param $size
+     * @param $name
+     * @param $displaySizeType
+     */
+    function attrIcon($attribute, $name = "", $displaySizeType = "") {
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+        } else {
+            $dir = "/";
+        }
+        /*
+        switch($attribute){
+            case ATTRIBUTE_1:
+                //$attr = "jinjyu";
+                $attr = "jin";
+                break;
+            case ATTRIBUTE_2:
+                //$attr = "sinzoku";
+                $attr = "sin";
+                break;
+            case ATTRIBUTE_3:
+                //$attr = "mashu";
+                $attr = "mas";
+                break;
+            case ATTRIBUTE_4:
+                //$attr = "kaishu";
+                $attr = "umi";
+                break;
+            case ATTRIBUTE_5:
+                //$attr = "fushi";
+                $attr = "fus";
+                break;
+        }
+        */
+        //return $this->image("/image/com/icon/icon_" . $attr . ".gif", $displaySizeType, array("alt" => $name));
+        return $this->image($dir . "image/com/icon/icon" . $attribute . ".gif", $displaySizeType, array("alt" => $name));
+    }
+
+    /**
+     * アバター画像を返却する
+     * @param $url
+     */
+    function avatarImage($url) {
+        return "<img src='{$url}' />";
+    }
+
+    /*
+     * パーセント表示
+     * @param 分子(num)、分母(deno)
+     */
+    function percent($num, $deno)
+    {
+        $percent = intval($num/$deno*100);
+        if($percent > 100)	$percent = 100;
+        return $percent;
+    }
+
+    /**
+     * カード経験値の情報を返す
+     *
+     * @param $lv
+     * @param $now
+     * @param &$MixConfig
+     * @param $options
+     */
+    function cardExpGageImage($lv, $lvMax, $now, &$MixConfig, $size = "s", $options = array("width" => 60, "height" => 10)) {
+
+        $max = $MixConfig->getNextLvExp($lv, $now);
+
+        // 最大LV
+        if ($lv == $lvMax) {
+            $rate = 100;
+            $dispRate = 99;
+        } else {
+
+            if ($now == 0) {
+                $dispRate = 0;
+                $rate = 0;
+            } else {
+//                $per = ($now - $MixConfig->levels[$MixConfig->getLevel($now)]) / ($MixConfig->getNextLvExp($lv, $now) - $MixConfig->levels[$MixConfig->getLevel($now)]);
+                $per = ($now - ($lv-1) * 100) / 100;
+                $dispPer = round($per, 2);
+                $rate = floor($per * 10) * 10;
+                $dispRate = $dispPer * 100;
+            }
+        }
+
+        if(empty($this->carrier)){
+            $mobile = empty($this->view) ? array('carrier' => "NONE") : $this->view->getVar('MOBILE_DATA');
+            $this->carrier = $mobile['carrier'];
+        }
+        if($this->carrier == "pc"){
+            $dir = "/sp/";
+        } else {
+            $dir = "/";
+        }
+
+        $rate = sprintf("%03d", $rate);
+
+        $path = $dir . "image/gage/gage{$size}_{$rate}.gif";
+
+//        return $dispRate . ":" . $this->Html->image($path, $options);
+        return $this->Html->image($path, $options);
+
+    }
+
+    /**
+     * ゲージ系のイメージタグを返す
+     *
+     * @param $type             ゲージタイプ 1:カード経験値 2:経験値 3:体力 4:達成率
+     * @param $imagePath        イメージパス
+     * @param $displaySizeType  ディスプレイサイズタイプ
+     * @param $options          オプション
+     * @return イメージタグ
+     */
+//    function gageImage($type, $displaySizeType = DISPLAY_QVGA, $options, $now, $max) {
+//
+////        if (isset($options["width"]) && $options["width"] != "" &&
+////            isset($options["height"]) && $options["height"] != "") {
+////            if ($displaySizeType == DISPLAY_VGA) {
+////                $options["width"]  = $options["width"] * 2;
+////                $options["height"] = $options["height"] * 2;
+////            }
+////        }
+//
+//        //ファイルを決定する
+////        $per  = ($now / $max) * 100;
+//
+//        if ($now > $max) {
+//            $now = $max;
+//        }
+//        if ($now == 0) {
+//            $rate = 0;
+//        } else {
+//            $per = $now / $max;
+//            $per = round($per, 1);
+//            $rate = $per * 100;
+//        }
+//
+////        $rate = $per  / 5;
+////        $rate = $rate * 5;
+//        $rate = sprintf("%03d", $rate);
+//
+//        switch ($type) {
+//            case GAGE_TYPE_CARD_EXP:
+//                $path = "/img/quest/qvga/cardexp/cardexp_{$rate}.gif";
+//                break;
+//            case GAGE_TYPE_EXP:
+//                $path = "/img/quest/qvga/exp/exp_{$rate}.gif";
+//                break;
+//            case GAGE_TYPE_HP:
+//                $path = "/img/quest/qvga/hp/hp_{$rate}.gif";
+//                break;
+//            case GAGE_TYPE_ATTAINMENT:
+//
+//                $path = "/img/quest/qvga/attainment/attainment_{$rate}.gif";
+//                break;
+//            default:
+//                $path = "/img/quest/qvga/cardexp/cardexp_{$rate}.gif";
+//                break;
+//
+//        }
+//
+//        /*
+//        if ($displaySizeType == DISPLAY_QVGA) {
+//            $path = str_replace("DISPLAY_SIZE", "qvga", $path);
+//        } else if ($displaySizeType == DISPLAY_VGA) {
+//            $path = str_replace("DISPLAY_SIZE", "vga", $path);
+//        }
+//        */
+//
+//        return $this->Html->image($path, $options);
+//
+//        //return $this->image($path, $displaySizeType, $options);
+//    }
+
+    /*
+     * レア度表示
+     */
+    function rare($rare, $maxRare = RARE_MAX)
+    {
+        $strRare = "";
+
+        for($i=1; $i<=$maxRare; $i++)
+        {
+            if($i <= $rare)
+            {
+                $strRare .= "★";
+            }
+            else{
+                $strRare .= "☆";
+            }
+        }
+        return $strRare;
+    }
+    /*
+     * カードのレア表示
+     */
+    function cardRare($rare)
+    {
+        config('app_config');
+        $AppConfig = new AppConfig();
+
+        $strRare = $AppConfig->cardRares[$rare];
+        $color = "#FFFF33;";
+        switch($rare){
+            case 1:
+            case 2:
+                $color = "#88BBFF;";
+                break;
+            case 3:
+            case 4:
+                $color = "#FF6600;";
+                break;
+            case 5:
+            case 6:
+                $color = "#FFFF33;";
+                break;
+            case 7:
+            case 8:
+                $color = "#66FF33;";
+                break;
+            case 9:
+            case 10:
+                $color = "#66FF33;";
+                break;
+        }
+        $rareTag = "<span style=\"color:{$color}\">{$strRare}</span>";
+
+        return $rareTag;
+    }
+
+    /**
+     * カード属性タグ
+     * @param $attribute
+     */
+    function attrTag($attribute)
+    {
+        config('app_config');
+        $AppConfig = new AppConfig();
+
+        $strAttribute = $AppConfig->cardAttributes[$attribute];
+
+        $tag = "";
+        switch($attribute){
+            case ATTRIBUTE_1:
+                $tag = "<span style=\"background-color:#552211; color:#FF6633;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_2:
+                $tag = "<span style=\"background-color:#555533; color:#CCFFCC;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_3:
+                $tag = "<span style=\"background-color:#222244; color:#7799FF;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_4:
+                $tag = "<span style=\"background-color:#1144AA; color:#33DDFF;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_5:
+                $tag = "<span style=\"background-color:#551144; color:#FF55EE;\">$strAttribute</span>";
+                break;
+            default:
+                break;
+        }
+        return $tag;
+    }
+
+    /**
+     * カード属性タグ(Short)
+     * @param $attribute
+     */
+    function attrTagS($attribute)
+    {
+        config('app_config');
+        $AppConfig = new AppConfig();
+
+        $strAttribute = $AppConfig->cardAttributes_s[$attribute];
+
+        $tag = "";
+        switch($attribute){
+            case ATTRIBUTE_1:
+                $tag = "<span style=\"background-color:#552211; color:#FF6633;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_2:
+                $tag = "<span style=\"background-color:#555533; color:#CCFFCC;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_3:
+                $tag = "<span style=\"background-color:#222244; color:#7799FF;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_4:
+                $tag = "<span style=\"background-color:#1144AA; color:#33DDFF;\">$strAttribute</span>";
+                break;
+            case ATTRIBUTE_5:
+                $tag = "<span style=\"background-color:#551144; color:#FF55EE;\">$strAttribute</span>";
+                break;
+            default:
+                break;
+        }
+        return $tag;
+    }
+
+    /**
+     * 画像タグを吐き出す（画面サイズに応じた）
+     *
+     * @param $imagePath        イメージパス
+     * @param $displaySizeType  ディスプレイサイズタイプ
+     * @param $options          オプション
+     * @return イメージタグ
+     */
+    function image($path, $displaySizeType = DISPLAY_QVGA, $options = array()) {
+//        if (isset($options["width"]) && $options["width"] != "" &&
+//            isset($options["height"]) && $options["height"] != "") {
+//            if ($displaySizeType == DISPLAY_VGA) {
+//                $options["width"]  = $options["width"] * 2;
+//                $options["height"] = $options["height"] * 2;
+//            }
+//        }
+//        if ($displaySizeType == DISPLAY_QVGA) {
+//            $path = str_replace("DISPLAY_SIZE", "qvga", $path);
+//        } else if ($displaySizeType == DISPLAY_VGA) {
+//            $path = str_replace("DISPLAY_SIZE", "vga", $path);
+//        }
+        return $this->Html->image($path, $options);
+    }
+
+    /**
+     * ソーシャルアプリ用フォームを作成する
+     * @param $model
+     * @param $options
+     * @return formタグ
+     */
+    function create($model = null, $options = array()) {
+        if (empty($options["url"]) || is_array($options["url"])) {
+            $options["url"] = SITE_URL  . "/". $options["url"]["controller"] . "/" . $options["url"]["action"];
+        } elseif (is_string($options["url"])) {
+            $options["url"] = SITE_URL . $options["url"] . "&guid=ON";
+        }
+
+        // accept-encoding要素があると、携帯の機種により動作がことなるため、表示しないようにしておく
+        $options["encoding"] = null;
+
+        return parent::create($model, $options);
+    }
+
+    /**
+     * スペーサー画像
+     * @param $height
+     * @return スペーサー画像
+     */
+    function space($height = 3) {
+        //mbga用
+        return '<img src="http://ava-a.mbga.jp/i/dot.gif" width="240" height="' . $height . '" /><br />';
+    }
+
+    /**
+     * ボーダー
+     * @param $color
+     * @param $height
+     * @return ボーダー
+     */
+//    function border($color,$height) {
+////        return '<div style="background:'.$color.';"><img src="/img/spacer.gif" width="1" height="'.$height.'" /></div>';
+//        $img_tag = $this->image("/img/skin/spacer.gif", "DISPLAY_SIZE", array("width" => 1, "height" => $height, "alt" => ""));
+//        return '<div style="background:'.$color.';">'.$img_tag.'</div>';
+//    }
+
+    /*
+     * 短縮日付を返す
+     */
+    function shortDate($date, $_format="m/d H:i")
+    {
+        $format = "Y";
+        $Y      = date($format,strtotime($date));
+        $format = "Y/m/d H:i";
+        $YmdHi  = date($format,strtotime($date));
+        $format = "Y/m/d";
+        $Ymd    = date($format,strtotime($date));
+        $format = "H:i";
+        $Hi     = date($format,strtotime($date));
+        //去年以前
+        if($Y != date('Y'))			return $YmdHi;
+        if($Ymd == date('Y/m/d'))	return $Hi;
+        return date($_format,strtotime($date));
+    }
+
+    /**
+     * datetimeを短く整形する
+     *
+     * @param $date 日付
+     * @return 日付
+     */
+    public function date2Short($date) {
+
+        $time = strtotime($date);
+
+        //年月日
+        $date = date('y/m/d', $time);
+
+        //時間
+        $time = date('H:i', $time);
+
+        return "$date $time";
+    }
+
+    /**
+     * 2010/11/05 ONISHI ADD
+     * モバゲー対応
+     */
+    function inviteLink($title, $url = null, $htmlAttributes = array(), $confirmMessage = false, $escapeTitle = true, $get = null, $accessKey = array()) {
+
+        //mbga用
+        $url = "invite:friends?guid=ON&url=".urlencode(SITE_URL.$url."?guid=ON{$get}") . "&subject=" . $htmlAttributes["subject"] . "&body=" . $htmlAttributes["body"];
+
+        if(isset($htmlAttributes["accessKey"])){
+            $tag = "<a href=\"{$url}\" accessKey={$accessKey}><span style='color:" . LINK_MAIN_COLOR . ";'>{$title}</span></a>";
+        }else{
+            $tag = "<a href=\"{$url}\"><span style='color:" . LINK_MAIN_COLOR . ";'>{$title}</span></a>";
+        }
+        return $tag;
+
+    }
+
+
+    /**
+     * モバゲー問い合わせリンク
+     * @return モバゲー問い合わせリンク
+     */
+    function pfInquiryLink() {
+        if($this->carrier == "pc"){
+            return "<a href='" . PF_URL_SP . "_pf_inquiry?game_id=" . APP_ID . "&page=init'>お問い合わせ</a><br />";
+        }else{
+            return "<a href='" . PF_URL . "_pf_inquiry?game_id=" . APP_ID . "&page=init'>お問い合わせ</a><br />";
+        }
+    }
+
+    /**
+     * モバゲー設定変更リンク
+     * @return モバゲー設定変更リンク
+     */
+    function pfGameConfLink() {
+        if($this->carrier == "pc"){
+            return "<a href='" . PF_URL_SP . "_pf_game_conf?game_id=" . APP_ID . "'>設定変更</a><br />";
+        }else{
+            return "<a href='" . PF_URL . "_pf_game_conf?game_id=" . APP_ID . "'>設定変更</a><br />";
+        }
+    }
+
+    /**
+     * モバゲー特定商取引法のリンク
+     * @return モバゲー特定商取引法のリンク
+     */
+    function pfDeveloperLink() {
+        if($this->carrier == "pc"){
+//    		return "<a href='" . PF_URL . "_pf_developer?game_id=" . APP_ID . "'><span style='color:" . LINK_MAIN_COLOR . ";'>特定商取引法に基づく表記</span></a><br />";
+            return "ｻｰﾋﾞｽ提供者<br /><a href='" . PF_URL_SP . "_pf_developer?game_id=" . APP_ID . "'><span style='color:" . LINK_MAIN_COLOR . ";'>株式会社ｽｸｳｪｱ･ｴﾆｯｸｽ</span></a><br />";
+        }else{
+            return "ｻｰﾋﾞｽ提供者<br /><a href='" . PF_URL . "_pf_developer?game_id=" . APP_ID . "'>株式会社ｽｸｳｪｱ･ｴﾆｯｸｽ</a><br />";
+        }
+    }
+
+    /**
+     * サービス提供者リンク
+     * @return サービス提供者リンク
+     */
+    function pfServiceProviderLink() {
+        if($this->carrier == "pc"){
+            return "ｻｰﾋﾞｽ提供者<br /><a href='" . PF_URL_SP . "_pf_developer?game_id=" . APP_ID . "'><span style='color:" . LINK_MAIN_COLOR . ";'>株式会社ｽｸｳｪｱ･ｴﾆｯｸｽ</span></a><br />";
+        }else{
+            return "ｻｰﾋﾞｽ提供者<br /><a href='" . PF_URL . "_pf_developer?game_id=" . APP_ID . "'>株式会社ｽｸｳｪｱ･ｴﾆｯｸｽ</a><br />";
+        }
+    }
+
+    /**
+     * モバゲー公式サークルのリンク
+     * @return モバゲー公式サークルのリンク
+     */
+    function pfCommunityLink() {
+        if($this->carrier == "pc"){
+            return "<a href='http://sp.mbga.jp/_grp_view?g=" . COMMUNITY_ID . "'><span style='color:" . LINK_MAIN_COLOR . ";'>今すぐ参加</span></a><br />";
+        }else{
+            return "<a href='http://www.mbga.jp/_grp_view?g=" . COMMUNITY_ID . "&guid=ON'>今すぐ参加</a><br />";
+        }
+    }
+    function pfCommunityForm() {
+        if($this->carrier == "pc"){
+            return "<form method='POST' action='http://sp.mbga.jp/_grp_view?g=" . COMMUNITY_ID . "'><input class='btMain' type='submit' value='今すぐ参加' /></form>";
+        }else{
+            return "<form method='POST' action='http://www.mbga.jp/_grp_view?g=" . COMMUNITY_ID . "&guid=ON'><input class='btMain' type='submit' value='今すぐ参加' /></form>";
+        }
+    }
+
+}
