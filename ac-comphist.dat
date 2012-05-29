@@ -1,58 +1,176 @@
-((("elscreen-copy-tree" .
-   [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0])
-  ("elscreen-on-emacs" .
-   [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
-  ("$data" .
+((("left" .
+   [1 0 0 0])
+  ("append" .
+   [0 0 0 0 0 1])
+  ("initial-frame-alist" .
+   [0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("data" .
+   [1 0 0 0])
+  ("array" .
    [4 0 0 0 0])
-  ("Test" .
-   [1 0 0 0])
-  ("$test" .
+  ("$members" .
+   [2 0 0 0 0 0 0 0])
+  ("debug" .
    [1 0 0 0 0])
-  ("add-to-list" .
-   [0 0 0 0 0 0 1 0 0 0 0])
-  ("backup-directory-alist" .
-   [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0])
-  ("cons" .
-   [1 0 0 0])
-  ("setq" .
-   [5 0 0 0])
-  ("auto-save-file-name-transforms" .
-   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
-  ("expand-file-name" .
-   [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
-  ("empty" .
-   [3 0 0 0 0])
-  ("$rescue" .
-   [2 0 0 0 0 0 0])
-  ("$myForm" .
-   [3 0 0 0 0 0 0])
-  ("titleColor" .
-   [2 0 0 0 0 0 1 0 0 0])
-  ("user-emacs-directory" .
-   [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
-  ("howm" .
-   [1 0 0 0])
-  ("when" .
-   [2 0 0 0])
-  ("require" .
-   [2 0 0 0 0 0 0])
-  ("howm-mode" .
-   [1 0 0 0 0 0 0 0 0])
-  ("nil" .
+  ("rescue" .
+   [1 0 0 0 0 0])
+  ("s" .
+   [1])
+  ("$id" .
    [2 0 0])
-  ("define-key" .
-   [1 0 0 0 0 0 0 0 0 2])
-  ("global-map" .
-   [0 0 0 0 0 0 0 0 0 1])
-  ("kbd" .
-   [4 0 0])
-  ("window-system" .
-   [1 0 0 0 0 0 0 0 0 0 0 0 0])
-  ("elscreen" .
+  ("set_rescue_fre" .
+   [3 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("render" .
+   [1 0 0 0 0 0])
+  ("redirect" .
    [1 0 0 0 0 0 0 0])
-  ("iconify-or-deiconify-frame" .
-   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1])
+  ("$entry_member" .
+   [2 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("$memberId" .
+   [1 0 0 0 0 0 0 0 0])
+  ("$member_id" .
+   [1 0 0 0 0 0 0 0 0 0])
+  ("$member" .
+   [1 0 0 0 0 0 0])
+  ("$ids_ref" .
+   [2 0 0 0 0 0 0 0])
+  ("$ret" .
+   [2 0 0 0])
+  ("__LINE__" .
+   [9 0 0 0 0 0 0 0])
+  ("_debug" .
+   [7 0 0 0 0 0])
+  ("$this" .
+   [17 0 0 0 0])
+  ("suspend-emacs" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 1])
   ("elscreen-map" .
    [0 0 0 0 0 0 0 0 0 0 0 1])
-  ("suspend-emacs" .
-   [0 0 0 0 0 0 0 0 0 0 0 0 1])))
+  ("iconify-or-deiconify-frame" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1])
+  ("elscreen" .
+   [1 0 0 0 0 0 0 0])
+  ("window-system" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("kbd" .
+   [5 0 0])
+  ("global-map" .
+   [0 0 0 0 0 0 0 0 0 2])
+  ("define-key" .
+   [1 0 0 0 0 0 0 0 0 3])
+  ("nil" .
+   [7 0 0])
+  ("howm-mode" .
+   [1 0 0 0 0 0 0 0 0])
+  ("require" .
+   [3 0 0 1 0 0 0])
+  ("when" .
+   [3 0 0 0])
+  ("howm" .
+   [1 0 0 0])
+  ("user-emacs-directory" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("titleColor" .
+   [2 0 0 0 0 0 1 0 0 0])
+  ("$myForm" .
+   [3 0 0 0 0 0 0])
+  ("$rescue" .
+   [2 0 0 0 0 0 0])
+  ("empty" .
+   [6 0 0 0 0])
+  ("expand-file-name" .
+   [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
+  ("auto-save-file-name-transforms" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("setq" .
+   [7 0 0 1])
+  ("cons" .
+   [1 0 0 0])
+  ("backup-directory-alist" .
+   [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("add-to-list" .
+   [0 0 0 0 0 0 1 0 0 0 0])
+  ("$test" .
+   [1 0 0 0 0])
+  ("Test" .
+   [1 0 0 0])
+  ("$data" .
+   [5 0 0 0 0])
+  ("elscreen-on-emacs" .
+   [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0])
+  ("elscreen-copy-tree" .
+   [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0])
+  ("$record_list" .
+   [1 0 0 0 0 0 0 0 0 0 0 0])
+  ("elseif" .
+   [0 0 0 0 0 1])
+  ("TMemberKbossBattleRequest" .
+   [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("$list" .
+   [4 0 0 0 0])
+  ("if" .
+   [3 0])
+  ("$requestBattles" .
+   [2 0 0 0 0 0 0 0 0 0 0 0 0 0 1])
+  ("A" .
+   [1])
+  ("e" .
+   [1])
+  ("$requestBattleIds" .
+   [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("TMemberKbossBattle" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0])
+  ("getBattleDataListByIds" .
+   [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("array_merge" .
+   [0 0 0 0 0 0 0 0 1 0 0])
+  ("$t" .
+   [1 0])
+  ("getRequestBattleId" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("isset" .
+   [1 0 0 0 0])
+  ("echo" .
+   [2 0 1 0])
+  ("$hoge" .
+   [2 0 0 0 0])
+  ("i" .
+   [1])
+  ("and" .
+   [1 0 0])
+  ("anything-exuberant-ctags" .
+   [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("anything-gtags" .
+   [0 0 0 0 0 0 0 0 0 0 0 1 0 0])
+  ("Anything" .
+   [1 0 0 0 0 0 0 1])
+  ("anything-for-files" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0])
+  ("anything" .
+   [0 0 0 0 0 0 0 2])
+  ("anything-frame-or-window-configuration" .
+   [0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("anything-info-elib" .
+   [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0])
+  ("list" .
+   [1 0 0 0])
+  ("anything-c-source-imenu" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0])
+  ("anything-config" .
+   [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0])
+  ("anything-c-source-gtags-select" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0])
+  ("anything-c-source-exuberant-ctags-select" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("defun" .
+   [1 0 0 0 0])
+  ("anything-for-tags" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 1])
+  ("interactive" .
+   [0 0 0 0 0 0 0 0 0 0 1])
+  ("thing-at-point" .
+   [0 0 0 0 0 0 0 0 0 0 0 0 0 1])
+  ("symbol" .
+   [0 0 0 0 0 1])
+  ("ƒCƒxƒ“ƒgŠúŠÔ" .
+   [1 0 0 0 0 0])))

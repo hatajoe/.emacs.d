@@ -1,3 +1,6 @@
+;; set current
+(cd "C:\Users\hatanaka")
+
 ;; backup setting
 (add-to-list 'backup-directory-alist
 	     (cons "." "~/.emacs.d/backups/"))
