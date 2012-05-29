@@ -1,7 +1,0 @@
-= mysql 負荷確認コマンド
-show global status like 'Connections';
-show global status like 'Max_used%';
-show global status like 'Thread_%';
-
-[2012-05-16 17:59] >>> ~/.emacs.d/howm/2012/05/2012-05-16-122909.howm
-
