@@ -1,3 +1,6 @@
+;; default encoding
+(set-default-coding-systems 'utf-8)
+
 ;; backup setting
 (add-to-list 'backup-directory-alist
 	     (cons "." "~/.emacs.d/backups/"))
@@ -66,7 +69,7 @@
   (when (require 'descbinds-anything nil t)
     (descbinds-anything-install))
   
-  (define-key global-map (kbd "C-;") 'anything))
+  (define-key global-map (kbd "C-l") 'anything))
 
 ;; anything-gtags
 (when (and (require 'anything-exuberant-ctags nil t)
@@ -76,7 +79,7 @@
 	      anything-c-source-gtags-select
 	      ;; if etags using
 	      ;; anything-c-source-etags-select
-	      anything-c-source-exuberant-ctags-select))
+	      anything-c-source-exuberant-ctags-select)))
 (defun anything-for-tags ()
   "Preconfigured `anything' for anything-for-tags."
   (interactive)
@@ -108,11 +111,20 @@
   (setq php-manual-url "http://jp.php.net/manual/ja/"))
 
 ; pho-mode indent
-(defun php-indent-hook ()
-  (setq indent-tabs-mode nil)
-  (setq c-basic-offset 4)
-  (c-set-offset 'arglist-intro '+)
-  (c-set-offset 'arglist-close 0))
+(defun php-mode-hook ()
+  (setq tab-width 4
+        c-basic-offset 4
+        c-hanging-comment-ender-p nil
+    indent-tabs-mode
+    (not
+     (and (string-match "/\\(PEAR\\|pear\\)/" (buffer-file-name))
+          (string-match "\.php$" (buffer-file-name))))))
+
+;; (defun php-indent-hook ()
+;;   (setq indent-tabs-mode nil)
+;;   (setq c-basic-offset 4)
+;;   (c-set-offset 'arglist-intro '+)
+;;   (c-set-offset 'arglist-close 0))
 
 (add-hook 'php-mode-hook 'php-indent-hook)
 
@@ -135,22 +147,9 @@
   (autoload 'svn-status "psvn" "Run `svn status'." t))
 
 ;; flymake-php
-;;(when (require 'flymake nil t)
-  (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
-;;  (when (not (fboundp 'flymake-php-init))
-    (defun flymake-php-init ()
-      (let* ((temp-file (flymake-init-create-temp-buffer-copy
-			 'flymake-create-temp-inplace))
-	     (local-file (file-reative-name
-			  temp-file
-			  (file-name-directory buffer-file-name))))
-	(list "php" (list "-f" local-file "-l")))))
-;;    (setq flymake-allowed-file-name-masks
-;;	  (append
-;;	   flymake-allowed-file-name-masks
-;;	   '(("\.php[345]?$" flymake-php-init))))
-;;    (add-hook 'php-mode-hook
-;;	      '(lambda () (flymake-mode t)))))
+(add-hook 'php-mode-hook 'flymake-php-load)
+(when (require 'flymake nil t)
+  (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line))
 
 ;; howm 
 (setq howm-directory (concat user-emacs-directory "howm"))
