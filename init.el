@@ -1,5 +1,20 @@
 ;; default encoding
+(set-language-environment 'utf-8)
+(prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
+;; disable menu bar 
+(tool-bar-mode nil)
+
+;; disabeld startup display
+(setq inhibit-startup-message t)
+
+;; block highlight
+(show-paren-mode 1)
+
+;; current directory
+(cd "~/")
 
 ;; backup setting
 (add-to-list 'backup-directory-alist
@@ -32,9 +47,9 @@
   (auto-install-update-emacswiki-package-name t)
   (auto-install-compatibility-setup))
 
-;; redo+
-(when (require 'redo+ nil t)
-  (global-set-key (kbd "C-.") 'redo))
+;; undo tree
+(when (require 'undo-tree nil t)
+  (global-undo-tree-mode))
 
 ;; gtags
 (setq gtags-suggested-key-mapping t)
@@ -79,15 +94,16 @@
 	      anything-c-source-gtags-select
 	      ;; if etags using
 	      ;; anything-c-source-etags-select
-	      anything-c-source-exuberant-ctags-select)))
-(defun anything-for-tags ()
-  "Preconfigured `anything' for anything-for-tags."
-  (interactive)
-  (anything anything-for-tags
-	    (thing-at-point 'symbol)
-	    nil nil nil "*anything for tags*")
-  (setq anything-exclude-file-regexp "\\.fsLockFile$")
-(define-key global-map (kbd "M-t") 'anything-for-tags))
+	      anything-c-source-exuberant-ctags-select
+	))
+
+  (defun anything-for-tags ()
+    "Preconfigured `anything' for anything-for-tags."
+    (interactive)
+    (anything anything-for-tags
+	      (thing-at-point 'symbol)
+	      nil nil nil "*anything for tags*"))
+  (define-key global-map (kbd "M-t") 'anything-for-tags))
 
 ;; package
 (when (require 'package nil t)
@@ -107,26 +123,10 @@
 ;; php-mode
 (when (require 'php-mode nil t)
   (add-to-list 'auto-mode-alist '("\\.ctp\\'" . php-mode))
+  (add-to-list 'auto-mode-alist '("\\.twig\\'" . php-mode))
   (setq php-search-url "http://jp.php.net/ja/")
-  (setq php-manual-url "http://jp.php.net/manual/ja/"))
-
-; pho-mode indent
-(defun php-mode-hook ()
-  (setq tab-width 4
-        c-basic-offset 4
-        c-hanging-comment-ender-p nil
-    indent-tabs-mode
-    (not
-     (and (string-match "/\\(PEAR\\|pear\\)/" (buffer-file-name))
-          (string-match "\.php$" (buffer-file-name))))))
-
-;; (defun php-indent-hook ()
-;;   (setq indent-tabs-mode nil)
-;;   (setq c-basic-offset 4)
-;;   (c-set-offset 'arglist-intro '+)
-;;   (c-set-offset 'arglist-close 0))
-
-(add-hook 'php-mode-hook 'php-indent-hook)
+  (setq php-manual-url "http://jp.php.net/manual/ja/")
+  (setq php-mode-force-pear t))
 
 ;; php-completion
 (defun php-completion-hook ()
@@ -141,11 +141,6 @@
 
 (add-hook 'php-mode-hook 'php-completion-hook)
 
-;; psvn
-(when (executable-find "svn")
-  (setq svn-status-verbose nil)
-  (autoload 'svn-status "psvn" "Run `svn status'." t))
-
 ;; flymake-php
 (add-hook 'php-mode-hook 'flymake-php-load)
 (when (require 'flymake nil t)
@@ -157,10 +152,4 @@
 ; (setq howm-file-name-format "%Y/%m/%Y-%m-%d.howm")
 (when (require 'howm-mode nil t)
   (define-key global-map (kbd "C-c ,,") 'howm-menu))
-
-;; elscreen
-(when (require 'elscreen nil t)
-  (if window-system
-      (define-key elscreen-map (kbd "C-z") 'iconify-or-deiconify-frame)
-    (define-key elscreen-map (kbd "C-z") 'suspend-emacs)))
 
