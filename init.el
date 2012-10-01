@@ -5,7 +5,7 @@
 (set-keyboard-coding-system 'utf-8)
 
 ;; disable menu bar 
-((eq window-sytem 'x)
+((eq window-system 'x)
  (tool-bar-mode nil))
 
 ;; disabeld startup display
