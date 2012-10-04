@@ -4,14 +4,23 @@
 (set-default-coding-systems 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
+;; silent
+(set-message-beep 'silent)
+
 ;; disabeld startup display
 (setq inhibit-startup-message t)
 
 ;; block highlight
 (show-paren-mode 1)
 
+;; frame title
+(setq frame-title-format "%f")
+
 ;; current directory
 (cd "~/")
+
+;; newline and indent
+(global-set-key "\C-m" 'newline-and-indent)
 
 ;; backup setting
 (add-to-list 'backup-directory-alist
@@ -43,6 +52,10 @@
   (setq auto-install-directory "~/.emacs.d/elisp/")
   (auto-install-update-emacswiki-package-name t)
   (auto-install-compatibility-setup))
+
+;; cua-mode
+(cua-mode t)
+(setq cua-enable-cua-keys nil)
 
 ;; undo tree
 (when (require 'undo-tree nil t)
@@ -84,15 +97,9 @@
   (define-key global-map (kbd "C-l") 'anything))
 
 ;; anything-gtags
-(when (and (require 'anything-exuberant-ctags nil t)
-	   (require 'anything-gtags nil t))
+(when (require 'anything-gtags nil t)
   (setq anything-for-tags
-	(list anything-c-source-imenu
-	      anything-c-source-gtags-select
-	      ;; if etags using
-	      ;; anything-c-source-etags-select
-	      anything-c-source-exuberant-ctags-select
-	))
+	(list anything-c-source-gtags-select))
 
   (defun anything-for-tags ()
     "Preconfigured `anything' for anything-for-tags."
@@ -100,7 +107,39 @@
     (anything anything-for-tags
 	      (thing-at-point 'symbol)
 	      nil nil nil "*anything for tags*"))
-  (define-key global-map (kbd "M-t") 'anything-for-tags))
+
+  (define-key global-map (kbd "C-t") 'anything-for-tags)
+  (define-key global-map (kbd "M-t") 'gtags-find-rtag))
+
+;; anything-show-kill-ring
+(define-key global-map (kbd "M-y") 'anything-show-kill-ring)
+
+;; anything-c-moccur
+(when (require 'anything-c-moccur nil t)
+  (setq
+   anything-c-moccur-anything-idle-delay 0.1
+   anything-c-moccur-highlight-info-line-flag t
+   anything-c-moccur-enable-auto-look-flag t
+   anything-c-moccur-enable-initial-pattern t)
+  (global-set-key (kbd "C-M-o") 'anything-c-moccur-occur-by-moccur))
+
+;; anything-for-document
+(setq anything-for-document-sources
+      (list anything-c-source-man-pages
+	    anything-c-source-info-cl
+	    anything-c-source-info-pages
+	    anything-c-source-info-elisp
+	    anything-c-source-apropos-emacs-commands
+	    anything-c-source-apropos-emacs-functions
+	    anything-c-source-apropos-emacs-variables))
+
+(defun anything-for-document ()
+  "Preconfigured `anything' for anything-for-document."
+  (interactive)
+  (anything anything-for-document-sources
+	    (thing-at-point 'symbol) nil nil nil
+	    "*anything for document*"))
+(define-key global-map (kbd "C-M-d") 'anything-for-document)
 
 ;; package
 (when (require 'package nil t)
@@ -124,6 +163,10 @@
   (setq php-search-url "http://jp.php.net/ja/")
   (setq php-manual-url "http://jp.php.net/manual/ja/")
   (setq php-mode-force-pear t))
+
+;; js2-mode
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-hook 'js2-mode-hook 'js-indent-hook)
 
 ;; php-completion
 (defun php-completion-hook ()

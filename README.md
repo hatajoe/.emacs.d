@@ -14,9 +14,12 @@ M-x replace-string : replace
 
 C-l : anything
 M-t : anything-gtags
+C-M-o: anything-c-moccur
+M-y: anything-show-kill
 C-o : php-completion
 C-x u : undo-tree
-M-x flymake-goto-next-error : manual syntax check
+C-RET : cua-mode
+
 
 
 
