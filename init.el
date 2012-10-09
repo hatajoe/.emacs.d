@@ -64,6 +64,15 @@
 ;; gtags
 (setq gtags-suggested-key-mapping t)
 (require 'gtags nil t)
+(defun my-c-mode-update-gtags ()
+  (let* ((file (buffer-file-name (current-buffer)))
+     (dir (directory-file-name (file-name-directory file))))
+    (when (executable-find "global")
+      (start-process "gtags-update" nil
+             "global" "-uv"))))
+
+(add-hook 'after-save-hook
+      'my-c-mode-update-gtags)
 
 ;; anything
 (when (require 'anything nil t)
@@ -108,8 +117,8 @@
 	      (thing-at-point 'symbol)
 	      nil nil nil "*anything for tags*"))
 
-  (define-key global-map (kbd "C-t") 'anything-for-tags)
-  (define-key global-map (kbd "M-t") 'gtags-find-rtag))
+  (define-key global-map (kbd "M-t") 'anything-for-tags)
+  (define-key global-map (kbd "C-M-t") 'gtags-find-rtag))
 
 ;; anything-show-kill-ring
 (define-key global-map (kbd "M-y") 'anything-show-kill-ring)
@@ -192,4 +201,18 @@
 ; (setq howm-file-name-format "%Y/%m/%Y-%m-%d.howm")
 (when (require 'howm-mode nil t)
   (define-key global-map (kbd "C-c ,,") 'howm-menu))
+
+;; ELScreen
+(setq elscreen-prefix-key (kbd "C-t"))
+(when (require 'elscreen nil t)
+  (if window-system
+      (define-key elscreen-map (kbd "C-z") 'iconify-or-deiconify-frame)
+    (define-key elscreen-map (kbd "C-z") 'suspend-emacs)))
+
+
+
+
+
+
+
 
