@@ -195,7 +195,8 @@ If it is other symbol, display file name in candidates even if classification is
     (get-line . aggs-candidate-display)
     (display-to-real
      . (lambda (c) (if (string-match "^ " c) (concat "_ " c) c)))
-    (action ("Goto the location" . aggs-select-it))))
+    (action ("Goto the location" .
+	     aggs-select-it))))
 (defvar aggs-buffer "*anything gtags select*")
 
 (defun aggs-candidate-display (s e)

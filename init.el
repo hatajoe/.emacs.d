@@ -2,6 +2,9 @@
 ;; kill buffer
 (define-key global-map (kbd "C-x C-k") 'kill-buffer)
 
+;; kill process
+(setq delete-exited-processes t)
+
 ;; default encoding
 (set-language-environment 'utf-8)
 (prefer-coding-system 'utf-8)
@@ -67,6 +70,7 @@
 (cua-mode t)
 (setq cua-enable-cua-keys nil)
 
+;; source
 ;;; color-theme-ir-black.el --- pastel color theme
 ;; MIT License Copyright (c) 2009 Burke Libbey <burke@burkelibbey.org>
 ;; URL: https://github.com/kurtharriger/color-theme-ir-black
@@ -145,22 +149,14 @@
 
 (provide 'color-theme-ir-black)
 
-;;; color-theme-ir-black.el ends here
+(eval-after-load "color-theme"
+  '(progn
+     (color-theme-ir-black)))
 
 
 ;; undo tree
 (when (require 'undo-tree nil t)
   (global-undo-tree-mode))
-
-;; gtags
-(setq gtags-suggested-key-mapping t)
-(require 'gtags nil t)
-(defun my-c-mode-update-gtags ()
-  (let* ((file (buffer-file-name (current-buffer)))
-     (dir (directory-file-name (file-name-directory file))))
-    (when (executable-find "global")
-      (start-process "gtags-update" nil
-             "global" "-uv"))))
 
 (add-hook 'after-save-hook
       'my-c-mode-update-gtags)
@@ -199,9 +195,12 @@
   (define-key global-map (kbd "C-l") 'anything)
 
   ;; anything-gtags
-  (when (require 'anything-gtags nil t)
+  (when (and (require 'anything-exuberant-ctags nil t)
+	     (require 'anything-gtags nil t))
     (setq anything-for-tags
-	  (list anything-c-source-gtags-select))
+	  (list anything-c-source-imenu
+		anything-c-source-gtags-select
+		anything-c-source-exuberant-ctags-select))
 
     (defun anything-for-tags ()
       "Preconfigured `anything' for anything-for-tags."
@@ -210,8 +209,10 @@
 		(thing-at-point 'symbol)
 		nil nil nil "*anything for tags*"))
 
-    (define-key global-map (kbd "M-t") 'anything-for-tags)
-    (define-key global-map (kbd "C-M-t") 'gtags-find-rtag))
+    (define-key global-map (kbd "M-t") 'anything-gtags-select))
+
+  ;; anything-grep
+  (define-key global-map (kbd "C-c C-g") 'anything-grep)
 
   ;; anything-show-kill-ring
   (define-key global-map (kbd "M-y") 'anything-show-kill-ring)
@@ -255,7 +256,7 @@
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories
 	       "~/.emacs.d/elisp/ac-dict")
-  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+  (define-key ac-mode-map (kbd "M-q") 'auto-complete)
   (ac-config-default))
 
 ;; js2-mode
