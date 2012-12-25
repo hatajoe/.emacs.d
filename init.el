@@ -1,4 +1,34 @@
 
+;; alpha setting
+(set-frame-parameter nil 'alpha 90)
+
+;; set font size
+(set-face-attribute 'default nil :height 100)
+
+;; disable menu bar
+(tool-bar-mode 0)
+
+;; disable scrollbar
+(scroll-bar-mode nil)
+
+;; disable fringe
+(fringe-mode 'none)
+
+;; disable blinking cursor
+(blink-cursor-mode 0)
+
+;; scrolled as one line
+(setq scroll-step 1)
+
+;; delete region at C-h
+(delete-selection-mode 1)
+
+;; indent to space
+(setq-default indent-tabs-mode nil)
+
+;; C-h to backspace
+(global-set-key "\C-h" 'delete-backward-char)
+
 ;; kill buffer
 (define-key global-map (kbd "C-x C-k") 'kill-buffer)
 
@@ -25,7 +55,7 @@
 (setq frame-title-format "%f")
 
 ;; current directory
-(cd "~/")
+(cd "~/Work/")
 
 ;; newline and indent
 (global-set-key "\C-m" 'newline-and-indent)
@@ -226,6 +256,8 @@
      anything-c-moccur-enable-initial-pattern t)
     (global-set-key (kbd "C-r") 'anything-c-moccur-occur-by-moccur))
 
+  (global-set-key (kbd "C-M-r") 'anything-c-moccur-dmoccur)
+
   ;; anything-for-document
   (setq anything-for-document-sources
 	(list anything-c-source-man-pages
@@ -297,8 +329,8 @@
   (define-key global-map (kbd "C-c ,,") 'howm-menu))
 
 ;; ELScreen
-(setq elscreen-prefix-key (kbd "C-t"))
-(when (require 'elscreen nil t)
-  (if window-system
-      (define-key elscreen-map (kbd "C-z") 'iconify-or-deiconify-frame)
-    (define-key elscreen-map (kbd "C-z") 'suspend-emacs)))
+; (setq elscreen-prefix-key (kbd "C-t"))
+; (when (require 'elscreen nil t)
+;  (if window-system
+;      (define-key elscreen-map (kbd "C-z") 'iconify-or-deiconify-frame)
+;    (define-key elscreen-map (kbd "C-z") 'suspend-emacs)))
