@@ -188,9 +188,6 @@
 (when (require 'undo-tree nil t)
   (global-undo-tree-mode))
 
-(add-hook 'after-save-hook
-      'my-c-mode-update-gtags)
-
 ;; anything
 (when (require 'anything nil t)
   (setq
@@ -320,6 +317,128 @@
 (add-hook 'php-mode-hook 'flymake-php-load)
 (when (require 'flymake nil t)
   (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line))
+
+;; perl
+;; steal from typester ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defalias 'perl-mode 'cperl-mode)
+(setq cperl-indent-level 4)
+(setq cperl-continued-statement-offset 4)
+(setq cperl-brace-offset -4)
+(setq cperl-label-offset -4)
+(setq cperl-indent-parens-as-block t)
+(setq cperl-close-paren-offset -4)
+(setq cperl-tab-always-indent t)
+;(setq cperl-electric-parens t) ; 対応する括弧自動挿入 うざい
+;(setq cperl-invalid-face nil)
+(setq cperl-highlight-variables-indiscriminately t)
+
+; steal from perlhacks
+(global-set-key "\M-p" 'cperl-perldoc)
+
+(add-hook 'cperl-mode-hook '(lambda ()
+                              (setq indent-tabs-mode nil)
+                              ; BestPractices からぱくったがなんかうごいてない
+                              (setq fill-column 78)
+                              (setq auto-fill-mode t)
+                              ; face設定。これはどっかちがうとこにうつす
+                              (set-face-background 'cperl-hash-face (face-background 'default))
+                              (setq cperl-hash-face 'cperl-hash-face)
+                              ;(make-face 'cperl-array-face)
+                              ;(set-face-foreground 'cperl-array-face "color-69")
+                              (set-face-background 'cperl-array-face (face-background 'default))
+                              (setq cperl-array-face 'cperl-array-face)
+                              ))
+                              
+
+; from Best Practices
+; Use % to match various kinds of brackets...
+;(defun match-paren (arg)
+;  "Go to the matching paren if on a paren; otherwide insert %."
+;  (interactive "p")
+;  (let ((prev-char (char-to-string (preceding-char)))
+;	(next-char (char-to-string (following-char))))
+;    (cond ((string-match "[[{(<]" next-char) (forward-sexp 1))
+;	  ((string-match "[\]})>" prev-char) (backward-sexp 1))
+;	  (t (self-insert-command (or arg 1))))))
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+	((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+	(t (self-insert-command (or arg 1)))))
+(global-set-key "%" 'match-paren)
+
+
+; perl tidy
+(defun perltidy-region ()
+  "Run perltidy on the current region."
+  (interactive)
+  (save-excursion
+    (shell-command-on-region (point) (mark) "perltidy -q" nil t)))
+(defun perltidy-defun ()
+  "Run perltidy on the current defun."
+  (interactive)
+  (save-excursion (mark-defun)
+  (perltidy-region)))
+
+;; perl completion
+;(add-to-list 'load-path "~/.emacs.d/elisp/perl-completion")
+;(add-hook 'cperl-mode-hook (lambda ()
+;                             (require 'perl-completion)
+;                             (perl-completion-mode t)))
+
+(add-hook  'cperl-mode-hook (lambda ()
+                              (require 'auto-complete)
+                              (require 'perl-completion)
+                              (add-to-list 'ac-sources 'ac-source-perl-completion)
+                              (perl-completion-mode t)))
+
+(global-set-key "\C-ct" 'perltidy-region)
+(global-set-key "\C-c\C-t" 'perltidy-defun)
+
+(add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
+
+(eval-after-load "perl-completion"
+  '(progn
+     (defadvice flymake-start-syntax-check-process (around flymake-start-syntax-check-lib-path activate) (plcmp-with-set-perl5-lib ad-do-it))
+     (define-key plcmp-mode-map (kbd "M-TAB") nil)
+     (define-key plcmp-mode-map (kbd "M-C-o") 'plcmp-cmd-smart-complete)))
+
+;; flymake for perl
+(defvar flymake-perl-err-line-patterns '(("\\(.*\\) at \\([^ \n]+\\) line \\([0-9]+\\)[,.\n]" 2 3 nil 1)))
+(defconst flymake-allowed-perl-file-name-masks '(("\\.pl$" flymake-perl-init)
+                                               ("\\.pm$" flymake-perl-init)
+                                               ("\\.t$" flymake-perl-init)
+                                               ))
+
+(defun flymake-perl-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "perl" (list "-wc" local-file))))
+
+(defun flymake-perl-load ()
+  (interactive)
+  (defadvice flymake-post-syntax-check (before flymake-force-check-was-interrupted)
+    (setq flymake-check-was-interrupted t))
+  (ad-activate 'flymake-post-syntax-check)
+  (setq flymake-allowed-file-name-masks (append flymake-allowed-file-name-masks flymake-allowed-perl-file-name-masks))
+  (setq flymake-err-line-patterns flymake-perl-err-line-patterns)
+  (flymake-mode t))
+
+(add-hook 'cperl-mode-hook '(lambda () (flymake-perl-load)))
+
+(defun next-flymake-error ()
+  (interactive)
+  (flymake-goto-next-error)
+  (let ((err (get-char-property (point) 'help-echo)))
+    (when err
+      (message err))))
+(global-set-key "\M-e" 'next-flymake-error)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; howm 
 (setq howm-directory (concat user-emacs-directory "howm"))
