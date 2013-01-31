@@ -1,6 +1,8 @@
 emacs
 =====
 
+my emacs setting's steal from Hackers.
+
 # for use
 $ cd<br />
 $ git clone https://github.com/Hatajoe/emacs.git .emacs.d<br />
