@@ -1,7 +1,7 @@
 emacs
 =====
 
-my emacs setting's steal from Hackers.
+my emacs settings steal from Hackers.
 
 # for use
 $ cd<br />
