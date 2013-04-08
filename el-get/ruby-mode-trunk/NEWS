@@ -1,0 +1,49 @@
+# -*- rdoc -*-
+
+= NEWS for Ruby 2.1.0
+
+This document is a list of user visible feature changes made between
+releases except for bug fixes.
+
+Note that each entry is kept so brief that no reason behind or
+reference information is supplied with.  For a full list of changes
+with all sufficient information, see the ChangeLog file.
+
+== Changes since the 2.0.0 release
+
+=== Language changes
+=== Core classes updates (outstanding ones only)
+
+* GC
+  * added environment variable:
+    * RUBY_HEAP_SLOTS_GROWTH_FACTOR: growth rate of the heap.
+
+* IO
+  * extended methods:
+    * IO#seek accepts symbols (:CUR, :END, :SET) for 2nd argument.
+
+* Mutex
+  * misc
+    * Mutex#owned? is no longer experimental.
+
+* pack/unpack (Array/String)
+  * Q! and q! directives for long long type if platform has the type.
+
+=== Core classes compatibility issues (excluding feature bug fixes)
+
+* Module#ancestors
+
+  The ancestors of a singleton class now include singleton classes,
+  in particular itself.
+
+=== Stdlib updates (outstanding ones only)
+
+* Net::SMTP
+  * Added Net::SMTP#rset to implement the RSET command
+
+* Rinda::RingServer, Rinda::RingFinger
+  * Rinda now supports multicast sockets.  See Rinda::RingServer and
+    Rinda::RingFinger for details.
+
+=== Stdlib compatibility issues (excluding feature bug fixes)
+=== C API updates

@@ -1,3 +1,5 @@
-auto-save-list/*
-backups/*
-ac-comphist.dat
+/el-get/
+/auto-save-list/
+/history
+/ac-comphist.dat
+/filesets-cache.el
