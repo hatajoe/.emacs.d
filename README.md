@@ -1,7 +1,7 @@
-# emacs.d
+# .emacs.d
 
 ## USAGE
 
- % git clone https://github.com/Hatajoe/emacs.git .emacs.d
+ % git clone https://github.com/Hatajoe/.emacs.d.git
 
 
