@@ -1,3 +1,0 @@
-(:name multiple-cursors
-       :type git
-       :url "https://github.com/magnars/multiple-cursors.el.git")
