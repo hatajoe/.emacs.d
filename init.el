@@ -139,6 +139,11 @@
 ; elisp settings
 ;------------------
 
+;; color-theme
+(require 'color-theme)
+(color-theme-initialize)
+(color-theme-ir-black)
+
 ;; anything
 (require 'anything-startup)
 
