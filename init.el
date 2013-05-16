@@ -5,6 +5,7 @@
 ;; el-get
 ;; develop version recipe install without emacswiki recipes
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
 (unless (require 'el-get nil 'noerror)
   (with-current-buffer
       (url-retrieve-synchronously
@@ -12,6 +13,9 @@
     (let (el-get-master-branch el-get-install-skip-emacswiki-recipes)
       (goto-char (point-max))
       (eval-print-last-sexp))))
+
+;; adding local recipe
+(add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
 
 ;; select packages and install A.K.A 'sync'
 (setq my-packages
@@ -22,6 +26,7 @@
          auto-complete
          anything
          anything-c-moccur
+         moccur-edit
          descbinds-anything
          ;; still Forbidden...
          ;; undo-tree
@@ -146,6 +151,12 @@
 (require 'color-theme)
 (color-theme-initialize)
 (color-theme-ir-black)
+
+;; moccur-edit
+(require 'moccur-edit)
+(defadvice moccur-edit-change-file
+  (after save-after-moccur-edit-buffer activate)
+  (save-buffer))
 
 ;; anything
 (require 'anything-startup)
