@@ -459,6 +459,6 @@ and closing parentheses and brackets."
 ;------------------
 ; js2-mode settings
 ;------------------
-(add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (add-hook 'js2-mode-hook 'js-indent-hook)
 
