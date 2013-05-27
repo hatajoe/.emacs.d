@@ -1,0 +1,8 @@
+(:name sws-mode
+       :website "https://github.com/brianc/jade-mode/"
+       :description "Significant Whitespace Mode.
+            Because Jade and Stylus are both 'significant white space' languages,
+            sws-mode can be used to edit both types of files"
+       :type git
+       :url "git://github.com/brianc/jade-mode.git"
+       :features sws-mode) 

@@ -35,6 +35,8 @@
          ruby-mode
          php-mode
          js2-mode
+         sws-mode
+         jade-mode
          flymake
          )
        ))
@@ -461,4 +463,27 @@ and closing parentheses and brackets."
 ;------------------
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (add-hook 'js2-mode-hook 'js-indent-hook)
+
+;------------------
+; jade-mode settings
+;------------------
+(require 'sws-mode)
+(require 'jade-mode)
+(add-to-list 'auto-mode-alist '("\\.styl$" . sws-mode))
+(add-to-list 'auto-mode-alist '("\\.jade$" . jade-mode))
+
+(defun flymake-jade-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-intemp))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name)))
+         (arglist (list local-file)))
+    (list "jade" arglist)))
+(setq flymake-err-line-patterns
+      (cons '("\\(.*\\): \\(.+\\):\\([[:digit:]]+\\)$"
+              2 3 nil 1)
+            flymake-err-line-patterns))
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.jade\\'" flymake-jade-init))
 
