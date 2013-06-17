@@ -61,7 +61,6 @@
 
 ;; disable menu and tool bar
 (menu-bar-mode -1)
-(tool-bar-mode -1)
 
 ;; disable visual bell and beep
 (setq visible-bell nil)
@@ -154,7 +153,7 @@
 ;; color-theme
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-ir-black)
+(color-theme-ld-dark)
 
 ;; moccur-edit
 (require 'moccur-edit)
