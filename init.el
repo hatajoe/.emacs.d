@@ -36,6 +36,8 @@
          ruby-mode
          php-mode
          js2-mode
+         coffee-mode
+         sass-mode
          sws-mode
          jade-mode
          flymake
@@ -61,7 +63,6 @@
 
 ;; disable menu and tool bar
 (menu-bar-mode -1)
-(tool-bar-mode -1)
 
 ;; disable visual bell and beep
 (setq visible-bell nil)
@@ -154,7 +155,7 @@
 ;; color-theme
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-ir-black)
+(color-theme-ld-dark)
 
 ;; moccur-edit
 (require 'moccur-edit)
@@ -488,4 +489,24 @@ and closing parentheses and brackets."
             flymake-err-line-patterns))
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.jade\\'" flymake-jade-init))
+
+;------------------
+; coffee-mode settings
+;------------------
+(require 'coffee-mode)
+(autoload 'coffee-mode "coffee-mode" "Major mode for editing CoffeeScript." t)
+(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
+(add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
+
+;------------------
+; haml-mode settings
+;------------------
+(require 'haml-mode)
+(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
+
+;------------------
+; sass-mode settings
+;------------------
+(require 'sass-mode)
+(add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 
