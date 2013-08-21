@@ -52,6 +52,19 @@
 ; reset settings
 ;------------------
 
+;; if windows
+(cond
+ ((eq window-system 'w32)
+  (tool-bar-mode -1)
+  (set-frame-parameter (selected-frame) 'alpha '(85 50))
+  (add-to-list 'default-frame-alist '(alpha 85 50))
+  (set-face-attribute 'default nil
+                      :family "Lucida Console"
+                      :height 100)
+  (set-fontset-font
+   nil 'japanese-jisx0208
+   (font-spec :family "Meirio"))))
+
 ;; C-h is backspace
 (keyboard-translate ?\C-h ?\C-?)
 
@@ -510,3 +523,8 @@ and closing parentheses and brackets."
 (require 'sass-mode)
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 
+;------------------
+; php-mode settings
+;------------------
+(require 'php-mode)
+(add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
