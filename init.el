@@ -35,6 +35,7 @@
          set-perl5lib
          ruby-mode
          php-mode
+         mmm-mode
          js2-mode
          coffee-mode
          sass-mode
@@ -528,3 +529,62 @@ and closing parentheses and brackets."
 ;------------------
 (require 'php-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+(add-hook 'php-mode-user-hook
+          '(lambda ()
+             (setq tab-width 4)
+             (setq indent-tabs-mode nil)))
+
+;------------------
+; mmm-mode settings
+;------------------
+(require 'mmm-mode)
+(setq mmm-submode-decoration-level 2)
+(invert-face 'mmm-default-submode-face t)
+(setq mmm-font-lock-available-p t)
+(setq mmm-global-mode 'maybe)
+(mmm-add-mode-ext-class nil "\\.php?\\'" 'html-php)
+(mmm-add-classes
+ '((html-php
+    :submode php-mode
+    :front "<\\?\\(php\\)?"
+    :back "\\?>")))
+(add-to-list 'auto-mode-alist '("\\.php?\\'" . html-mode))
+(defun save-mmm-c-locals ()
+  (with-temp-buffer
+    (php-mode)
+    (dolist (v (buffer-local-variables))
+      (when (string-match "\\`c-" (symbol-name (car v)))
+        (add-to-list 'mmm-save-local-variables `(,(car v) nil, mmm-c-derived-modes))))))
+(save-mmm-c-locals)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
