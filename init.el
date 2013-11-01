@@ -23,7 +23,7 @@
       (append
        '(
          el-get
-         color-theme-ir-black
+         color-theme-ld-dark
          auto-complete
          anything
          anything-c-moccur
@@ -43,6 +43,7 @@
          jade-mode
          flymake
          ddskk
+         geben
          )
        ))
 
@@ -53,18 +54,13 @@
 ; reset settings
 ;------------------
 
-;; if windows
-(cond
- ((eq window-system 'w32)
-  (tool-bar-mode -1)
-  (set-frame-parameter (selected-frame) 'alpha '(85 50))
-  (add-to-list 'default-frame-alist '(alpha 85 50))
-  (set-face-attribute 'default nil
-                      :family "Lucida Console"
-                      :height 100)
-  (set-fontset-font
-   nil 'japanese-jisx0208
-   (font-spec :family "Meirio"))))
+(prefer-coding-system 'utf-8)
+
+(setq truncate-partial-width-windows nil)
+
+;; disable toolbar and menubar
+(menu-bar-mode 0)
+(tool-bar-mode 0)
 
 ;; C-h is backspace
 (keyboard-translate ?\C-h ?\C-?)
@@ -74,9 +70,6 @@
 
 ;; disable startup message
 (setq inhibit-startup-message t)
-
-;; disable menu and tool bar
-(menu-bar-mode -1)
 
 ;; disable visual bell and beep
 (setq visible-bell nil)
@@ -161,6 +154,7 @@
 ;; cua-mode
 (cua-mode t)
 (setq cua-enable-cua-keys nil)
+(define-key global-map (kbd "C-c SPC") 'cua-set-rectangle-mark)
 
 ;------------------
 ; elisp settings
@@ -537,54 +531,22 @@ and closing parentheses and brackets."
 ;------------------
 ; mmm-mode settings
 ;------------------
-(require 'mmm-mode)
-(setq mmm-submode-decoration-level 2)
-(invert-face 'mmm-default-submode-face t)
-(setq mmm-font-lock-available-p t)
-(setq mmm-global-mode 'maybe)
-(mmm-add-mode-ext-class nil "\\.php?\\'" 'html-php)
-(mmm-add-classes
- '((html-php
-    :submode php-mode
-    :front "<\\?\\(php\\)?"
-    :back "\\?>")))
-(add-to-list 'auto-mode-alist '("\\.php?\\'" . html-mode))
-(defun save-mmm-c-locals ()
-  (with-temp-buffer
-    (php-mode)
-    (dolist (v (buffer-local-variables))
-      (when (string-match "\\`c-" (symbol-name (car v)))
-        (add-to-list 'mmm-save-local-variables `(,(car v) nil, mmm-c-derived-modes))))))
-(save-mmm-c-locals)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+;; (require 'mmm-mode)
+;; (setq mmm-submode-decoration-level 2)
+;; (invert-face 'mmm-default-submode-face t)
+;; (setq mmm-font-lock-available-p t)
+;; (setq mmm-global-mode 'maybe)
+;; (mmm-add-mode-ext-class nil "\\.php?\\'" 'html-php)
+;; (mmm-add-classes
+;;  '((html-php
+;;     :submode php-mode
+;;     :front "<\\?\\(php\\)?"
+;;     :back "\\?>")))
+;; (add-to-list 'auto-mode-alist '("\\.php?\\'" . html-mode))
+;; (defun save-mmm-c-locals ()
+;;   (with-temp-buffer
+;;     (php-mode)
+;;     (dolist (v (buffer-local-variables))
+;;       (when (string-match "\\`c-" (symbol-name (car v)))
+;;         (add-to-list 'mmm-save-local-variables `(,(car v) nil, mmm-c-derived-modes))))))
+;; (save-mmm-c-locals)

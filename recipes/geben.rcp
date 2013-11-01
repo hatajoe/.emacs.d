@@ -1,0 +1,9 @@
+(:name geben
+       :description "GEBEN is a software package that interfaces Emacs to DBGp protocol
+           with which you can debug running scripts interactively.
+           At this present DBGp protocol are supported in several script languages with help of custom extensions."
+       :type http-tar
+       :options ("xzf")
+       :url "https://geben-on-emacs.googlecode.com/files/geben-0.26.tar.gz"
+       :load "geben.el"
+       :features geben)
