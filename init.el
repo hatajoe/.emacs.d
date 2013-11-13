@@ -23,7 +23,7 @@
       (append
        '(
          el-get
-         color-theme-ld-dark
+         color-theme-ir-black
          auto-complete
          anything
          anything-c-moccur
@@ -60,7 +60,6 @@
 
 ;; disable toolbar and menubar
 (menu-bar-mode 0)
-(tool-bar-mode 0)
 
 ;; C-h is backspace
 (keyboard-translate ?\C-h ?\C-?)
@@ -527,6 +526,19 @@ and closing parentheses and brackets."
           '(lambda ()
              (setq tab-width 4)
              (setq indent-tabs-mode nil)))
+
+;; flymake-php
+(defun flymake-php-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "php" (list "-l" local-file))))
+(push '(".+\\.php$" flymake-php-init) flymake-allowed-file-name-masks)
+(push '("(Parse|Fatal) error: (.*) in (.*) on line ([0-9]+)" 3 4 nil 2) flymake-err-line-patterns)
+
+(add-hook 'php-mode-hook (flymake-mode t))
 
 ;------------------
 ; mmm-mode settings
