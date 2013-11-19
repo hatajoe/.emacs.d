@@ -23,16 +23,16 @@
       (append
        '(
          el-get
-         color-theme-ld-dark
+         color-theme-ir-black
          auto-complete
          anything
-         anything-c-moccur
-         moccur-edit
+         ;; anything-c-moccur
+         ;; moccur-edit
          descbinds-anything
          ;; still Forbidden...
          ;; undo-tree
          cperl-mode
-         set-perl5lib
+         ;; set-perl5lib
          ruby-mode
          php-mode
          mmm-mode
@@ -42,8 +42,9 @@
          sws-mode
          jade-mode
          flymake
-         ddskk
+         ;; ddskk
          geben
+         go-mode
          )
        ))
 
@@ -60,7 +61,6 @@
 
 ;; disable toolbar and menubar
 (menu-bar-mode 0)
-(tool-bar-mode 0)
 
 ;; C-h is backspace
 (keyboard-translate ?\C-h ?\C-?)
@@ -166,10 +166,10 @@
 (color-theme-ld-dark)
 
 ;; moccur-edit
-(require 'moccur-edit)
-(defadvice moccur-edit-change-file
-  (after save-after-moccur-edit-buffer activate)
-  (save-buffer))
+;; (require 'moccur-edit)
+;; (defadvice moccur-edit-change-file
+;;   (after save-after-moccur-edit-buffer activate)
+;;  (save-buffer))
 
 ;; anything
 (require 'anything-startup)
@@ -187,22 +187,23 @@
 (anything-read-string-mode 1)
 
 ;; anything-c-moccur
-(require 'color-moccur)
-(setq moccur-split-word t)
+;; (require 'color-moccur)
+;; (setq moccur-split-word t)
 
-(require 'anything-c-moccur)
-(setq anything-c-moccur-anything-idle-delay 0.2
-      anything-c-moccur-higligt-info-line-flag t
-      anything-c-moccur-enable-auto-look-flag t
-      anything-c-moccur-enable-initial-pattern t)
+;; (require 'anything-c-moccur)
+;; (setq anything-c-moccur-anything-idle-delay 0.2
+;;       anything-c-moccur-higligt-info-line-flag t
+;;       anything-c-moccur-enable-auto-look-flag t
+;;       anything-c-moccur-enable-initial-pattern t)
 
-(define-key global-map (kbd "M-o") 'anything-c-moccur-occur-by-moccur)
-(define-key global-map (kbd "C-M-o") 'anything-c-moccur-dmoccur)
+;; (define-key global-map (kbd "M-o") 'anything-c-moccur-occur-by-moccur)
+;; (define-key global-map (kbd "C-M-o") 'anything-c-moccur-dmoccur)
 
 ;; descbinds-anything
 (require 'descbinds-anything)
 (descbinds-anything-install)
 
+(anything-read-string-mode 1)
 
 ;; auto-complete
 (require 'auto-complete-config)
@@ -550,3 +551,20 @@ and closing parentheses and brackets."
 ;;       (when (string-match "\\`c-" (symbol-name (car v)))
 ;;         (add-to-list 'mmm-save-local-variables `(,(car v) nil, mmm-c-derived-modes))))))
 ;; (save-mmm-c-locals)
+
+;------------------
+; go settings
+;------------------
+(add-to-list 'exec-path (expand-file-name "/usr/local/bin"))
+(add-to-list 'exec-path (expand-file-name "~/dev/go-workspace/bin"))
+(add-to-list 'load-path "~/dev/go-workspace/src/github.com/nsf/gocode/emacs")
+(add-to-list 'load-path "~/dev/go-workspace/src/github.com/dougm/goflymake")
+(require 'go-mode)
+(require 'go-autocomplete)
+(require 'auto-complete-config)
+(require 'go-flymake)
+
+(add-to-list 'auto-mode-alist '("\\.go$" . go-mode))
+(add-hook 'before-save-hook 'gofmt-before-save)
+(add-hook 'go-mode-hook (lambda ()
+                          (local-set-key (kbd "M-.") 'godef-jump)))
