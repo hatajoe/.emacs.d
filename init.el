@@ -26,13 +26,13 @@
          color-theme-ir-black
          auto-complete
          anything
-         ;; anything-c-moccur
-         ;; moccur-edit
+         anything-c-moccur
+         moccur-edit
          descbinds-anything
          ;; still Forbidden...
          ;; undo-tree
          cperl-mode
-         ;; set-perl5lib
+         set-perl5lib
          ruby-mode
          php-mode
          mmm-mode
@@ -42,7 +42,7 @@
          sws-mode
          jade-mode
          flymake
-         ;; ddskk
+         ddskk
          geben
          go-mode
          )
@@ -82,14 +82,14 @@
 (show-paren-mode 1)
 
 ;; white space is evil.
-(require 'whitespace)
-(setq whitespace-style '(
-                         face
-                         trailing
-                         lines-tail
-                         space-before-tab
-                         space-after-tab))
-(global-whitespace-mode 1)
+;; (require 'whitespace)
+;; (setq whitespace-style '(
+;;                          face
+;;                          trailing
+;;                          lines-tail
+;;                          space-before-tab
+;;                          space-after-tab))
+;; (global-whitespace-mode 1)
 
 ;; show cursor positions
 (column-number-mode t)
@@ -163,13 +163,13 @@
 ;; color-theme
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-ld-dark)
+(color-theme-ir-black)
 
 ;; moccur-edit
-;; (require 'moccur-edit)
-;; (defadvice moccur-edit-change-file
-;;   (after save-after-moccur-edit-buffer activate)
-;;  (save-buffer))
+(require 'moccur-edit)
+(defadvice moccur-edit-change-file
+  (after save-after-moccur-edit-buffer activate)
+ (save-buffer))
 
 ;; anything
 (require 'anything-startup)
@@ -187,17 +187,17 @@
 (anything-read-string-mode 1)
 
 ;; anything-c-moccur
-;; (require 'color-moccur)
-;; (setq moccur-split-word t)
+(require 'color-moccur)
+(setq moccur-split-word t)
 
-;; (require 'anything-c-moccur)
-;; (setq anything-c-moccur-anything-idle-delay 0.2
-;;       anything-c-moccur-higligt-info-line-flag t
-;;       anything-c-moccur-enable-auto-look-flag t
-;;       anything-c-moccur-enable-initial-pattern t)
+(require 'anything-c-moccur)
+(setq anything-c-moccur-anything-idle-delay 0.2
+      anything-c-moccur-higligt-info-line-flag t
+      anything-c-moccur-enable-auto-look-flag t
+      anything-c-moccur-enable-initial-pattern t)
 
-;; (define-key global-map (kbd "M-o") 'anything-c-moccur-occur-by-moccur)
-;; (define-key global-map (kbd "C-M-o") 'anything-c-moccur-dmoccur)
+(define-key global-map (kbd "M-o") 'anything-c-moccur-occur-by-moccur)
+(define-key global-map (kbd "C-M-o") 'anything-c-moccur-dmoccur)
 
 ;; descbinds-anything
 (require 'descbinds-anything)
@@ -541,29 +541,6 @@ and closing parentheses and brackets."
 (push '("(Parse|Fatal) error: (.*) in (.*) on line ([0-9]+)" 3 4 nil 2) flymake-err-line-patterns)
 
 (add-hook 'php-mode-hook (flymake-mode t))
-
-;------------------
-; mmm-mode settings
-;------------------
-;; (require 'mmm-mode)
-;; (setq mmm-submode-decoration-level 2)
-;; (invert-face 'mmm-default-submode-face t)
-;; (setq mmm-font-lock-available-p t)
-;; (setq mmm-global-mode 'maybe)
-;; (mmm-add-mode-ext-class nil "\\.php?\\'" 'html-php)
-;; (mmm-add-classes
-;;  '((html-php
-;;     :submode php-mode
-;;     :front "<\\?\\(php\\)?"
-;;     :back "\\?>")))
-;; (add-to-list 'auto-mode-alist '("\\.php?\\'" . html-mode))
-;; (defun save-mmm-c-locals ()
-;;   (with-temp-buffer
-;;     (php-mode)
-;;     (dolist (v (buffer-local-variables))
-;;       (when (string-match "\\`c-" (symbol-name (car v)))
-;;         (add-to-list 'mmm-save-local-variables `(,(car v) nil, mmm-c-derived-modes))))))
-;; (save-mmm-c-locals)
 
 ;------------------
 ; go settings
