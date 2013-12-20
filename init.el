@@ -45,6 +45,7 @@
          sws-mode
          jade-mode
          flymake
+         flycheck
          ddskk
          geben
          go-mode
@@ -149,6 +150,9 @@
 (setq cua-enable-cua-keys nil)
 (define-key global-map (kbd "C-c SPC") 'cua-set-rectangle-mark)
 
+;; disable vc-git
+(setq vc-handled-backends ())
+
 ;------------------
 ; elisp settings
 ;------------------
@@ -214,41 +218,30 @@
          (local-set-key "\C-\M-t" 'gtags-pop-stack)
          ))
 
-;; anything-exuberant-ctags
-(when (require 'anything nil t)
-  (require 'anything-exuberant-ctags))
-(define-key global-map (kbd "C-M-j") 'anything-exuberant-ctags-select-from-here)
-
 ;; auto-complete
-(require 'auto-complete-config)
-(ac-config-default)
+;; (require 'auto-complete-config)
+;; (ac-config-default)
 
-(add-to-list 'ac-modes 'objc-mode)
+;; (add-to-list 'ac-modes 'objc-mode)
 
-(setq ac-auto-show-menu 0.8)
+;; (setq ac-auto-show-menu 0.8)
 
-(setq ac-use-menu-map t)
+;; (setq ac-use-menu-map t)
 
-(define-key ac-mode-map (kbd "C-;") 'auto-complete)
+;; (define-key ac-mode-map (kbd "C-;") 'auto-complete)
 
 
 ;------------------
-; flymake settings
+; flycheck settings
 ;------------------
-(require 'flymake)
-
-;; disable GUI warnings
-(setq flymake-gui-warnings-enabled nil)
-
-;; M-e to jump error
-(defun next-flymake-error ()
-  (interactive)
-  (flymake-goto-next-error)
-  (let ((err (get-char-property (point) 'help-echo)))
-    (when err
-      (message err))))
-(define-key global-map (kbd "M-e") 'next-flymake-error)
-
+(require 'flycheck)
+(add-hook 'perl-mode-hook 'flycheck-mode)
+(add-hook 'php-mode-hook 'flycheck-mode)
+(add-hook 'ruby-mode-hook 'flycheck-mode)
+(add-hook 'jade-mode-hook 'flycheck-mode)
+;; flymake
+(define-key global-map (kbd "M-n") 'flymake-goto-next-error)
+(define-key global-map (kbd "M-p") 'flymake-goto-prev-error)
 
 ;;-----------------------------------------------------------
 ;; cperl-mode (https://github.com/typester/emacs-config.git)
@@ -456,34 +449,6 @@ and closing parentheses and brackets."
        (t
         (error "Got strange value of indent: %s" i))))))
 
-;; flymake for perl
-;; (defun flymake-perl-init ()
-;;   (plcmp-with-set-perl5-lib
-;;    (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-;;                         'flymake-create-temp-inplace))
-;;           (local-file  (file-relative-name
-;;                         temp-file
-;;                         (file-name-directory buffer-file-name)))
-;;           (perl5lib (split-string (or (getenv "PERL5LIB") "") ":"))
-;;           (args '("-wc")))
-;;      (progn
-;;        (dolist (lib perl5lib)
-;;          (unless (equal lib "")
-;;            (add-to-list 'args (concat "-I" lib) t)))
-;;        (add-to-list 'args local-file t)
-;;        (list "perl" args)))))
-
-;; (setq flymake-allowed-file-name-masks
-;;       (cons '("\\.\\(t\\|p[ml]\\|psgi\\)$"
-;;               flymake-perl-init
-;;               flymake-simple-cleanup
-;;               flymake-get-real-file-name)
-;;             flymake-allowed-file-name-masks))
-
-;; (add-hook 'cperl-mode-hook
-;;           '(lambda () (flymake-mode t)))
-
-
 ;------------------
 ; js2-mode settings
 ;------------------
@@ -497,21 +462,6 @@ and closing parentheses and brackets."
 (require 'jade-mode)
 (add-to-list 'auto-mode-alist '("\\.styl$" . sws-mode))
 (add-to-list 'auto-mode-alist '("\\.jade$" . jade-mode))
-
-(defun flymake-jade-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-intemp))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name)))
-         (arglist (list local-file)))
-    (list "jade" arglist)))
-(setq flymake-err-line-patterns
-      (cons '("\\(.*\\): \\(.+\\):\\([[:digit:]]+\\)$"
-              2 3 nil 1)
-            flymake-err-line-patterns))
-(add-to-list 'flymake-allowed-file-name-masks
-             '("\\.jade\\'" flymake-jade-init))
 
 ;------------------
 ; coffee-mode settings
@@ -540,33 +490,22 @@ and closing parentheses and brackets."
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
 (setq php-mode-force-pear t)
 
-;; flymake-php
-(defun flymake-php-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-inplace))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name))))
-    (list "php" (list "-l" local-file))))
-(push '(".+\\.php$" flymake-php-init) flymake-allowed-file-name-masks)
-(push '("(Parse|Fatal) error: (.*) in (.*) on line ([0-9]+)" 3 4 nil 2) flymake-err-line-patterns)
-(add-hook 'php-mode-hook (flymake-mode t))
-
 ;; completion
 (add-hook 'php-mode-hook
-          (lambda ()
-            (require 'php-completion)
-            (php-completion-mode t)
-            (define-key php-mode-map (kbd "C-o") 'phpcmp-complete))) ;php-completionの補完実行キーバインドの設定
-(add-hook 'php-mode-hook
-          (lambda ()
-            (make-local-variable 'ac-sources)
-            (setq ac-sources '(
-                               ac-source-words-in-same-mode-buffers
-                               ac-source-php-completion
-                               ac-source-filename
-                               ac-source-etags
-                               ))))
+         (lambda ()
+             (require 'php-completion)
+             (php-completion-mode t)
+             (define-key php-mode-map (kbd "C-o") 'phpcmp-complete)
+             (when (require 'auto-complete nil t)
+             (make-variable-buffer-local 'ac-sources)
+             (add-to-list 'ac-sources 'ac-source-php-completion)
+             (setq ac-sources '(
+                                ac-source-words-in-same-mode-buffers
+                                ac-source-php-completion
+                                ac-source-filename
+                                ;; ac-source-etags
+                                )))
+             (auto-complete-mode t)))
 
 ;------------------
 ; go settings
