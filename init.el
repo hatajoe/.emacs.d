@@ -25,16 +25,19 @@
          el-get
          color-theme-ir-black
          auto-complete
+         auto-complete-etags
+         gtags
          anything
          anything-c-moccur
+         anything-exuberant-ctags
+         anything-gtags
          moccur-edit
          descbinds-anything
-         ;; still Forbidden...
-         ;; undo-tree
          cperl-mode
          set-perl5lib
          ruby-mode
          php-mode
+         php-completion
          mmm-mode
          js2-mode
          coffee-mode
@@ -80,16 +83,6 @@
 
 ;; each blacket is resonate
 (show-paren-mode 1)
-
-;; white space is evil.
-;; (require 'whitespace)
-;; (setq whitespace-style '(
-;;                          face
-;;                          trailing
-;;                          lines-tail
-;;                          space-before-tab
-;;                          space-after-tab))
-;; (global-whitespace-mode 1)
 
 ;; show cursor positions
 (column-number-mode t)
@@ -204,6 +197,27 @@
 (descbinds-anything-install)
 
 (anything-read-string-mode 1)
+
+;; anything-gtags
+(require 'gtags)
+(require 'anything-gtags)
+(add-hook 'php-mode-hook
+          '(lambda()
+             (gtags-mode t)
+             (gtags-make-complete-list)
+             ))
+(setq gtags-mode-hook
+      '(lambda ()
+         (local-set-key "\M-t" 'gtags-find-tag)
+         (local-set-key "\M-r" 'gtags-find-rtag)
+         (local-set-key "\M-s" 'gtags-find-symbol)
+         (local-set-key "\C-\M-t" 'gtags-pop-stack)
+         ))
+
+;; anything-exuberant-ctags
+(when (require 'anything nil t)
+  (require 'anything-exuberant-ctags))
+(define-key global-map (kbd "C-M-j") 'anything-exuberant-ctags-select-from-here)
 
 ;; auto-complete
 (require 'auto-complete-config)
@@ -524,10 +538,7 @@ and closing parentheses and brackets."
 ;------------------
 (require 'php-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
-(add-hook 'php-mode-user-hook
-          '(lambda ()
-             (setq tab-width 4)
-             (setq indent-tabs-mode nil)))
+(setq php-mode-force-pear t)
 
 ;; flymake-php
 (defun flymake-php-init ()
@@ -539,8 +550,23 @@ and closing parentheses and brackets."
     (list "php" (list "-l" local-file))))
 (push '(".+\\.php$" flymake-php-init) flymake-allowed-file-name-masks)
 (push '("(Parse|Fatal) error: (.*) in (.*) on line ([0-9]+)" 3 4 nil 2) flymake-err-line-patterns)
-
 (add-hook 'php-mode-hook (flymake-mode t))
+
+;; completion
+(add-hook 'php-mode-hook
+          (lambda ()
+            (require 'php-completion)
+            (php-completion-mode t)
+            (define-key php-mode-map (kbd "C-o") 'phpcmp-complete))) ;php-completionの補完実行キーバインドの設定
+(add-hook 'php-mode-hook
+          (lambda ()
+            (make-local-variable 'ac-sources)
+            (setq ac-sources '(
+                               ac-source-words-in-same-mode-buffers
+                               ac-source-php-completion
+                               ac-source-filename
+                               ac-source-etags
+                               ))))
 
 ;------------------
 ; go settings
